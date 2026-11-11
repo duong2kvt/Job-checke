@@ -1,0 +1,141 @@
+.pt {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: #14112b;
+  color: #ece9ff;
+  font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+}
+.pt-bar {
+  flex: none;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  z-index: 5;
+}
+.pt-brand { display: flex; align-items: center; gap: 10px; color: inherit; text-decoration: none; font-weight: 600; font-size: 14px; }
+.pt-brand img { height: 26px; background: #fbfbfb; border-radius: 6px; padding: 3px 6px; }
+.pt-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 auto;
+  padding: 7px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  min-width: 0;
+}
+.pt-title strong { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pt-group { color: #a99cff; font-size: 12px; white-space: nowrap; }
+.pt-count { color: #8a85a8; font-variant-numeric: tabular-nums; font-size: 12px; }
+.pt-caret { color: #8a85a8; font-size: 11px; }
+.pt-actions { display: flex; gap: 6px; }
+.pt-actions button {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: transparent;
+  color: inherit;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.pt-actions button:hover:not(:disabled) { background: rgba(255, 255, 255, 0.08); }
+.pt-actions button:disabled { opacity: 0.35; cursor: default; }
+.pt-actions button[data-on] { background: #3616e3; border-color: #3616e3; }
+
+.pt-stage { position: relative; flex: 1; overflow: hidden; }
+.pt-canvas {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform-origin: 50% 50%;
+  background: #fbfbfb;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+}
+.pt-layer { position: absolute; inset: 0; }
+.pt-layer.is-in { animation: pt-in 0.38s cubic-bezier(0.2, 0.7, 0.2, 1) both; z-index: 1; }
+.pt-layer.is-out { z-index: 0; }
+@keyframes pt-in {
+  from { opacity: 0; transform: scale(1.012); }
+  to { opacity: 1; transform: none; }
+}
+.pt-screen { position: absolute; inset: 0; }
+.pt-screen > img { display: block; width: 100%; height: 100%; user-select: none; }
+.pt-hot {
+  position: absolute;
+  z-index: 3;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+.pt-hot[data-hint] { background: rgba(54, 22, 227, 0.16); box-shadow: inset 0 0 0 3px rgba(54, 22, 227, 0.7); }
+
+.pt-scrollhint {
+  position: absolute;
+  right: 16px;
+  bottom: 14px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(20, 17, 43, 0.75);
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.pt-menu {
+  position: absolute;
+  top: 52px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(960px, calc(100vw - 32px));
+  max-height: calc(100vh - 80px);
+  overflow: auto;
+  z-index: 10;
+  background: #1d1940;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+}
+.pt-menu section { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 18px; }
+.pt-menu h4 { grid-column: 1 / -1; margin: 0; font-size: 12px; color: #a99cff; font-weight: 600; letter-spacing: 0.02em; }
+.pt-menu button {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.03);
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+.pt-menu button:hover { background: rgba(255, 255, 255, 0.08); }
+.pt-menu button[data-on] { border-color: #6d5bff; }
+.pt-menu img, .pt-coded { width: 100%; aspect-ratio: 1920 / 1032; object-fit: cover; border-radius: 6px; background: #fbfbfb; }
+.pt-coded { display: grid; place-items: center; color: #3616e3; font-weight: 700; }
+
+@media (max-width: 640px) {
+  .pt-brand span, .pt-group, .pt-actions button:first-child { display: none; }
+  .pt-bar { gap: 8px; padding: 0 10px; }
+  .pt-title { font-size: 13px; padding: 6px 10px; }
+}

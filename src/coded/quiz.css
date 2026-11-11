@@ -1,0 +1,161 @@
+.cc-screen {
+  position: absolute;
+  inset: 0;
+  background: #fbfbfb;
+  overflow: hidden;
+  font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+  color: #0b0920;
+}
+.cc-loops { position: absolute; inset: 0; width: 100%; height: 100%; }
+.cc-logo { position: absolute; left: 56px; top: 54px; width: 274px; height: auto; }
+
+.cc-card {
+  position: absolute;
+  left: 670px;
+  top: 186px;
+  width: 588px;
+  height: 570px;
+  background: #fff;
+  border: 3px solid #3616e3;
+  border-radius: 14px;
+  box-shadow: 14px 14px 0 #3616e3;
+}
+.cc-face { position: absolute; left: 134px; top: 62px; }
+.cc-mascot { width: 300px; height: 280px; overflow: visible; }
+.cc-mascot.is-small { width: 210px; height: 196px; }
+.cc-pupil { transition: cx 0.18s ease-out, cy 0.18s ease-out; }
+.cc-blink { transform-origin: 0 0; animation: cc-blink 5.2s infinite; }
+@keyframes cc-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+
+.cc-sticker {
+  position: absolute;
+  left: 1158px;
+  top: 120px;
+  z-index: 2;
+  width: 196px;
+  min-height: 106px;
+  padding: 16px 18px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  font-family: 'Baloo 2', 'Be Vietnam Pro', sans-serif;
+  font-weight: 800;
+  font-size: 24px;
+  line-height: 1.15;
+  color: #13102a;
+  border-radius: 8px;
+  transform: rotate(9deg);
+  box-shadow: 0 6px 14px rgba(20, 10, 80, 0.12);
+  animation: cc-pop 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+@keyframes cc-pop {
+  from { transform: rotate(-4deg) scale(0.6); opacity: 0; }
+  to { transform: rotate(9deg) scale(1); opacity: 1; }
+}
+
+.cc-question {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 22px;
+  min-height: 104px;
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: #060318;
+  color: #fff;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 19.5px;
+  line-height: 1.5;
+  animation: cc-rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes cc-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+.cc-tag {
+  flex: none;
+  padding: 4px 12px;
+  border-radius: 6px;
+  background: #ddd8ff;
+  color: #1a0f6b;
+  font-weight: 800;
+  font-size: 20px;
+}
+
+.cc-scale {
+  position: absolute;
+  left: 520px;
+  width: 880px;
+  top: 806px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.cc-scale-end { font-weight: 600; font-size: 19px; width: 110px; }
+.cc-scale-end:first-child { text-align: right; padding-right: 22px; }
+.cc-scale-end:last-child { padding-left: 22px; }
+.cc-dot {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2.5px solid var(--c);
+  background: #fff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
+}
+.cc-dot:hover,
+.cc-dot[data-hover] { transform: scale(1.12); box-shadow: 0 0 0 6px color-mix(in srgb, var(--c) 18%, transparent); }
+.cc-dot[data-on] { background: var(--c); animation: cc-press 0.5s cubic-bezier(0.3, 0.7, 0.3, 1); }
+.cc-dot svg { animation: cc-check 0.3s ease-out both; }
+@keyframes cc-check { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: none; } }
+@keyframes cc-press {
+  0% { transform: scale(1.12); }
+  45% { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+.cc-back {
+  position: absolute;
+  left: 62px;
+  top: 896px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  background: none;
+  color: #3616e3;
+  font: 600 19px 'Be Vietnam Pro', sans-serif;
+  cursor: pointer;
+}
+.cc-back-ico {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid #3616e3;
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+  line-height: 0;
+  padding-bottom: 3px;
+}
+
+.cc-think { position: absolute; left: 90px; top: 30px; width: 400px; height: 380px; }
+.cc-think-face { position: absolute; left: 6px; top: 150px; }
+.cc-bubble { position: absolute; left: 92px; top: 0; width: 270px; height: 214px; overflow: visible; }
+.cc-bubble .dot { animation: cc-dots 1.1s infinite ease-in-out; transform-box: fill-box; transform-origin: center; }
+.cc-bubble .dot:nth-of-type(2) { animation-delay: 0.15s; }
+.cc-bubble .dot:nth-of-type(3) { animation-delay: 0.3s; }
+@keyframes cc-dots {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.55; }
+  30% { transform: translateY(-12px); opacity: 1; }
+}
