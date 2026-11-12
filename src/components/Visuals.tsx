@@ -1,4 +1,5 @@
 import type { Render } from '../data/levels'
+import { useId } from 'react'
 import { img } from './ui'
 import { useLang, type Tx } from '../lib/i18n'
 
@@ -76,21 +77,60 @@ function Grid({ aligned }: { aligned: boolean }) {
   )
 }
 
+const NUT = '#CC8A3B'
+const BEAN = '#4A2518'
+// One almond, pointing up, drawn around (0, 0): 64 wide, 108 tall
+const ALMOND = 'M0 -54 C 20 -42, 33 -8, 31 18 C 29 40, 15 54, 0 54 C -15 54, -29 40, -31 18 C -33 -8, -20 -42, 0 -54 Z'
+
+/** Option A of the logo task: two hand-drawn almonds over a condensed, bold wordmark */
+function AlmondLogo() {
+  const { lang } = useLang()
+  const id = useId().replace(/:/g, '')
+  const [big, small] = lang === 'en' ? ['ALMOND', 'MILK'] : ['SỮA HẠT', 'HẠNH NHÂN']
+  const groove = (d: string) => <path d={d} fill="none" stroke={BEAN} strokeWidth="2.6" strokeLinecap="round" />
+  return (
+    <div className="logo-card">
+      <svg viewBox="0 0 200 224" width="262" height="293" aria-hidden>
+        <defs>
+          <filter id={`rough${id}`} x="-10%" y="-10%" width="120%" height="120%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" />
+            <feDisplacementMap in="SourceGraphic" scale="2.2" />
+          </filter>
+        </defs>
+        <g filter={`url(#rough${id})`}>
+          {/* back almond, lying to the right */}
+          <g transform="translate(124 74) rotate(60) scale(0.94)">
+            <path d={ALMOND} fill={NUT} />
+            {groove('M-14 -30 C -20 -6, -20 18, -12 38')}
+            {groove('M2 -40 C -4 -12, -4 16, 2 44')}
+            {groove('M16 -28 C 20 -4, 20 18, 14 36')}
+            <path d="M-24 22 C -20 38, -10 46, 2 48" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" />
+          </g>
+          {/* front almond, upright, with a white rim that separates it from the back one */}
+          <g transform="translate(80 68)">
+            <path d={ALMOND} fill={NUT} stroke="#fff" strokeWidth="5" paintOrder="stroke" />
+            {groove('M-12 -36 C -21 -10, -21 18, -14 40')}
+            {groove('M2 -46 C -3 -16, -3 16, 2 46')}
+            {groove('M15 -34 C 21 -10, 21 16, 15 38')}
+            <path d="M-24 20 C -21 36, -12 46, -2 49" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" />
+          </g>
+        </g>
+        <g>
+          <text x="100" y="170" textAnchor="middle" fontFamily="'iCiel Panton', Montserrat, sans-serif" fontWeight="900" fontSize="46" fill={BEAN} textLength="134" lengthAdjust="spacingAndGlyphs">
+            {big}
+          </text>
+          <text x="100" y="216" textAnchor="middle" fontFamily="'iCiel Panton', Montserrat, sans-serif" fontWeight="900" fontSize="30" fill={BEAN} textLength={lang === 'en' ? 62 : 104} lengthAdjust="spacingAndGlyphs">
+            {small}
+          </text>
+        </g>
+      </svg>
+    </div>
+  )
+}
+
 function Logo({ variant }: { variant: 'simple' | 'busy' }) {
   const { t } = useLang()
-  if (variant === 'simple')
-    return (
-      <div className="logo-card">
-        <svg viewBox="0 0 200 200" width="220" height="220" aria-hidden>
-          <circle cx="100" cy="86" r="62" fill="#724721" />
-          <path d="M100 44 C 128 60, 132 104, 100 128 C 68 104, 72 60, 100 44 Z" fill="#F1DDBA" />
-          <path d="M100 58 L100 120" stroke="#724721" strokeWidth="5" strokeLinecap="round" />
-          <text x="100" y="182" textAnchor="middle" fontFamily="Montserrat, sans-serif" fontWeight="900" fontSize="26" fill="#724721">
-            {t('SỮA HẠT', 'NUT MILK')}
-          </text>
-        </svg>
-      </div>
-    )
+  if (variant === 'simple') return <AlmondLogo />
   return (
     <div className="logo-card">
       <svg viewBox="0 0 200 200" width="220" height="220" aria-hidden>

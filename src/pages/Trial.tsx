@@ -230,6 +230,11 @@ export function Trial() {
             </svg>
           </button>
         </div>
+        {i === 0 && (
+          <p className="space-hint" onClick={next}>
+            {t('Nhấn “Space” để tiếp tục', 'Press “Space” to continue')}
+          </p>
+        )}
         <div className="trial-bar">
           <i style={{ width: `${((i + 1) / steps.length) * 100}%` }} />
         </div>

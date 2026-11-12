@@ -422,6 +422,13 @@ img { user-select: none; }
 .arrows button:not(:disabled):hover { transform: scale(1.15); }
 .arrows .pulse { animation: nudge 1.6s ease-in-out infinite; }
 @keyframes nudge { 50% { transform: translateX(6px); } }
+/* Work Trial 1: first-screen hint (Figma 2064:1863) */
+.space-hint {
+  position: absolute; left: 50%; top: 988px; transform: translateX(-50%); margin: 0; z-index: 20; cursor: pointer;
+  font: 900 40px/normal var(--display); letter-spacing: -0.8px; color: #FCFCFE; white-space: nowrap;
+  animation: hint-in 0.5s 0.9s ease-out both;
+}
+@keyframes hint-in { from { opacity: 0; transform: translate(-50%, 12px); } }
 .trial-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 16px; background: #d9d9d9; z-index: 20; }
 .trial-bar i { display: block; height: 100%; background: var(--blue); transition: width 0.5s cubic-bezier(0.3, 0.7, 0.2, 1); }
 
