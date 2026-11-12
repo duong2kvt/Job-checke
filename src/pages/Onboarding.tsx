@@ -15,7 +15,7 @@ function nextAfterLogin() {
 export function Splash() {
   const nav = useNavigate()
   const ref = useRef<HTMLDivElement>(null)
-  const look = useLook(ref, 14)
+  useLook(ref, 14)
   const { t } = useLang()
   const go = () => nav(getState().user ? nextAfterLogin() : '/login', { replace: true })
   useEffect(() => {
@@ -30,7 +30,7 @@ export function Splash() {
           <p className="splash-tag">{t('Nền tảng hỗ trợ định hướng và trải nghiệm nghề nghiệp siêu kỳ thú', 'A super fun platform to help you find your path and try out careers')}</p>
         </div>
         <div className="splash-eyes">
-          <Eyes size={380} look={look} />
+          <Eyes size={380} />
         </div>
       </div>
     </Canvas>

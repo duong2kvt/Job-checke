@@ -47,7 +47,7 @@ export function Roadmap() {
   const branch = useStore((s) => s.branch) ?? 'do-hoa'
   const [toast, showToast] = useToast()
   const eyesRef = useRef<HTMLDivElement>(null)
-  const look = useLook(eyesRef, 10)
+  useLook(eyesRef, 10)
   const doneCount = LEVELS.filter((l) => levels[l.n]?.done).length
   const current = LEVELS.find((l) => !levels[l.n]?.done)?.n ?? 7
   const [menu, setMenu] = useState(false)
@@ -147,7 +147,7 @@ export function Roadmap() {
           />
         )}
         <div className="rm-face" ref={eyesRef}>
-          <RoadmapFace width={202} look={look} />
+          <RoadmapFace width={202} />
         </div>
         <BackLink to="/major/thiet-ke" />
         {toast}

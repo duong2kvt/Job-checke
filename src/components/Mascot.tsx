@@ -9,25 +9,83 @@ const CHEEK = '#F06BB8'
 const VEIN = '#F04A2F'
 const ANGRY_MS = 1700
 
-/** Pupils follow the pointer, within a few pixels */
+/**
+ * Pupils follow the pointer. The position never goes through React state:
+ * pointer events only record the latest coordinates, and one
+ * requestAnimationFrame loop eases the gaze towards them and writes it to the
+ * CSS variables --lx / --ly on the pupils inside `ref`. Pupils read those variables in a
+ * transform (see `gaze`), so moving the mouse costs one style update per
+ * frame instead of re-rendering the page on every pointer event.
+ */
 export function useLook(ref: RefObject<HTMLElement>, reach = 12) {
-  const [look, setLook] = useState({ x: 0, y: 0 })
   useEffect(() => {
-    const on = (e: PointerEvent) => {
+    let px: number | null = null
+    let py: number | null = null
+    let tx = 0
+    let ty = 0
+    let x = 0
+    let y = 0
+    let raf = 0
+    let last = 0
+    const tick = (now: number) => {
       const el = ref.current
-      if (!el) return
-      const r = el.getBoundingClientRect()
-      const dx = e.clientX - (r.left + r.width / 2)
-      const dy = e.clientY - (r.top + r.height * 0.4)
-      const d = Math.hypot(dx, dy) || 1
-      const k = Math.min(1, d / 300)
-      setLook({ x: (dx / d) * reach * k, y: (dy / d) * reach * k })
+      if (!el) {
+        raf = 0
+        return
+      }
+      if (px !== null && py !== null) {
+        const r = el.getBoundingClientRect()
+        const dx = px - (r.left + r.width / 2)
+        const dy = py - (r.top + r.height * 0.4)
+        const d = Math.hypot(dx, dy) || 1
+        const k = Math.min(1, d / 300)
+        tx = (dx / d) * reach * k
+        ty = (dy / d) * reach * k
+        px = py = null
+      }
+      // frame-rate independent easing: ~70% of the way in 50 ms
+      const dt = last ? Math.min(64, now - last) : 16.7
+      last = now
+      const a = 1 - Math.pow(0.65, dt / 16.7)
+      x += (tx - x) * a
+      y += (ty - y) * a
+      const done = Math.abs(tx - x) < 0.05 && Math.abs(ty - y) < 0.05
+      if (done) {
+        x = tx
+        y = ty
+      }
+      // write to the pupils only while moving (cheap restyle), and to the
+      // container once settled so freshly mounted faces start in place
+      const lx = x.toFixed(2)
+      const ly = y.toFixed(2)
+      el.querySelectorAll<SVGElement>('.pupil').forEach((p) => {
+        p.style.setProperty('--lx', lx)
+        p.style.setProperty('--ly', ly)
+      })
+      if (done) {
+        el.style.setProperty('--lx', lx)
+        el.style.setProperty('--ly', ly)
+        raf = 0
+        last = 0
+      } else raf = requestAnimationFrame(tick)
     }
-    window.addEventListener('pointermove', on)
-    return () => window.removeEventListener('pointermove', on)
+    const on = (e: PointerEvent) => {
+      px = e.clientX
+      py = e.clientY
+      if (!raf) raf = requestAnimationFrame(tick)
+    }
+    window.addEventListener('pointermove', on, { passive: true })
+    return () => {
+      window.removeEventListener('pointermove', on)
+      cancelAnimationFrame(raf)
+    }
   }, [ref, reach])
-  return look
 }
+
+/** Transform that shifts a pupil by the gaze written by useLook, scaled by k */
+const gaze = (k = 1, ky = k) => ({
+  transform: `translate(calc(var(--lx, 0) * ${k}px), calc(var(--ly, 0) * ${ky}px))`,
+})
 
 /**
  * Poke the mascot and it gets cross for a moment, then calms down.
@@ -63,7 +121,7 @@ function Vein({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
 }
 
 /** One angry eye: white ball, iris pushed down, upper lid cutting across it */
-function AngryEye({ cx, cy, r, side, look, id }: { cx: number; cy: number; r: number; side: 1 | -1; look: { x: number; y: number }; id: string }) {
+function AngryEye({ cx, cy, r, side, id }: { cx: number; cy: number; r: number; side: 1 | -1; id: string }) {
   // lid slopes down towards the nose: side 1 = left eye, -1 = right eye
   const outer = { x: cx - side * r * 0.82, y: cy - r * 0.32 }
   const inner = { x: cx + side * r * 0.78, y: cy + r * 0.12 }
@@ -75,7 +133,7 @@ function AngryEye({ cx, cy, r, side, look, id }: { cx: number; cy: number; r: nu
       </clipPath>
       <circle cx={cx} cy={cy} r={r} fill="#fff" stroke={INK} strokeWidth={r * 0.1} />
       <g clipPath={`url(#${id})`}>
-        <circle cx={cx + look.x * 0.4} cy={cy + r * 0.18} r={ir} fill={IRIS_ANGRY} stroke={INK} strokeWidth={r * 0.09} />
+        <circle cx={cx} cy={cy + r * 0.18} r={ir} fill={IRIS_ANGRY} stroke={INK} strokeWidth={r * 0.09} style={gaze(0.4, 0)} />
         {/* the lid hides the top of the iris */}
         <path d={`M${cx - r * 1.2} ${cy - r * 1.2} H${cx + r * 1.2} V${side === 1 ? inner.y : outer.y} L${side === 1 ? inner.x : outer.x} ${side === 1 ? inner.y : outer.y} L${side === 1 ? outer.x : inner.x} ${side === 1 ? outer.y : inner.y} H${cx - r * 1.2} Z`} fill="#fff" />
       </g>
@@ -85,14 +143,14 @@ function AngryEye({ cx, cy, r, side, look, id }: { cx: number; cy: number; r: nu
 }
 
 /** The Chộp Chếc face: two round eyes, brows and a mouth that change with the mood. Click it to make it cross. */
-export function Mascot({ face = 'happy', look = { x: 0, y: 0 }, size = 300, className = '' }: { face?: Face; look?: { x: number; y: number }; size?: number; className?: string }) {
+export function Mascot({ face = 'happy', size = 300, className = '' }: { face?: Face; size?: number; className?: string }) {
   const { angry, poke, n } = useTantrum()
   const { t } = useLang()
   const uid = useId().replace(/:/g, '')
   const eye = (cx: number, flip: 1 | -1) => (
     <g key={cx}>
       <circle cx={cx} cy={0} r={58} fill="#fff" stroke={INK} strokeWidth={6} />
-      <circle cx={cx + look.x} cy={look.y} r={30} fill={IRIS} stroke={INK} strokeWidth={5} className="pupil" />
+      <circle cx={cx} cy={0} r={30} fill={IRIS} stroke={INK} strokeWidth={5} className="pupil" style={gaze()} />
       {face === 'focus' && <path d={`M${cx - 44 * flip} -96 L${cx + 30 * flip} -66`} stroke={INK} strokeWidth="6" strokeLinecap="round" />}
       {face !== 'focus' && (
         <path
@@ -120,8 +178,8 @@ export function Mascot({ face = 'happy', look = { x: 0, y: 0 }, size = 300, clas
         <g className="mood-swap">
           <ellipse cx={-84} cy={50} rx={36} ry={28} fill={CHEEK} />
           <ellipse cx={84} cy={50} rx={36} ry={28} fill={CHEEK} />
-          <AngryEye cx={-78} cy={0} r={58} side={1} look={look} id={`${uid}l`} />
-          <AngryEye cx={78} cy={0} r={58} side={-1} look={look} id={`${uid}r`} />
+          <AngryEye cx={-78} cy={0} r={58} side={1} id={`${uid}l`} />
+          <AngryEye cx={78} cy={0} r={58} side={-1} id={`${uid}r`} />
           <path d="M-128 -98 L-32 -46" stroke={INK} strokeWidth="9" strokeLinecap="round" />
           <path d="M128 -98 L32 -46" stroke={INK} strokeWidth="9" strokeLinecap="round" />
           <path d="M-22 76 Q0 52 22 76" fill="none" stroke="#5B21D6" strokeWidth="6" strokeLinecap="round" />
@@ -170,7 +228,7 @@ export function MascotBadge({ size = 72 }: { size?: number }) {
 }
 
 /** Big standalone eyes (splash, roadmap corner, reward). Click them to make the mascot cross. */
-export function Eyes({ size = 260, look = { x: 0, y: 0 } }: { size?: number; look?: { x: number; y: number } }) {
+export function Eyes({ size = 260 }: { size?: number }) {
   const { angry, poke, n } = useTantrum()
   const { t } = useLang()
   const uid = useId().replace(/:/g, '')
@@ -190,8 +248,8 @@ export function Eyes({ size = 260, look = { x: 0, y: 0 } }: { size?: number; loo
         <g className="mood-swap">
           <ellipse cx="54" cy="116" rx="30" ry="22" fill={CHEEK} />
           <ellipse cx="210" cy="122" rx="30" ry="22" fill={CHEEK} />
-          <AngryEye cx={74} cy={80} r={50} side={1} look={look} id={`${uid}l`} />
-          <AngryEye cx={190} cy={86} r={50} side={-1} look={look} id={`${uid}r`} />
+          <AngryEye cx={74} cy={80} r={50} side={1} id={`${uid}l`} />
+          <AngryEye cx={190} cy={86} r={50} side={-1} id={`${uid}r`} />
           <path d="M22 20 L104 56" stroke={INK} strokeWidth="8" strokeLinecap="round" />
           <path d="M244 26 L160 60" stroke={INK} strokeWidth="8" strokeLinecap="round" />
           <path d="M116 150 Q132 132 148 150" fill="none" stroke="#5B21D6" strokeWidth="6" strokeLinecap="round" />
@@ -206,8 +264,8 @@ export function Eyes({ size = 260, look = { x: 0, y: 0 } }: { size?: number; loo
           <g className="blink">
             <circle cx="74" cy="80" r="50" fill="#fff" stroke={INK} strokeWidth="6" />
             <circle cx="190" cy="86" r="50" fill="#fff" stroke={INK} strokeWidth="6" />
-            <circle cx={74 + look.x} cy={80 + look.y} r="24" fill={IRIS} stroke={INK} strokeWidth="5" className="pupil" />
-            <circle cx={190 + look.x} cy={86 + look.y} r="24" fill={IRIS} stroke={INK} strokeWidth="5" className="pupil" />
+            <circle cx={74} cy={80} r="24" fill={IRIS} stroke={INK} strokeWidth="5" className="pupil" style={gaze()} />
+            <circle cx={190} cy={86} r="24" fill={IRIS} stroke={INK} strokeWidth="5" className="pupil" style={gaze()} />
           </g>
           <path d="M118 140 q14 16 28 0" fill="none" stroke={INK} strokeWidth="6" strokeLinecap="round" />
         </g>
@@ -224,14 +282,14 @@ export function Eyes({ size = 260, look = { x: 0, y: 0 } }: { size?: number; loo
 const T_INK = '#3B14C3'
 const T_IRIS = '#6C93F7'
 
-function ThinkingFeatures({ look, angry, uid }: { look: { x: number; y: number }; angry: boolean; uid: string }) {
+function ThinkingFeatures({ angry, uid }: { angry: boolean; uid: string }) {
   if (angry)
     return (
       <g className="mood-swap">
         <ellipse cx={70} cy={300} rx={34} ry={26} fill={CHEEK} />
         <ellipse cx={282} cy={308} rx={34} ry={26} fill={CHEEK} />
-        <AngryEye cx={91.7} cy={231.8} r={64} side={1} look={look} id={`${uid}l`} />
-        <AngryEye cx={260.4} cy={243.2} r={64} side={-1} look={look} id={`${uid}r`} />
+        <AngryEye cx={91.7} cy={231.8} r={64} side={1} id={`${uid}l`} />
+        <AngryEye cx={260.4} cy={243.2} r={64} side={-1} id={`${uid}r`} />
         <path d="M30 140 L136 196" stroke={INK} strokeWidth="10" strokeLinecap="round" />
         <path d="M322 152 L216 204" stroke={INK} strokeWidth="10" strokeLinecap="round" />
         <path d="M150 344 Q176 318 202 344" fill="none" stroke="#5B21D6" strokeWidth="7" strokeLinecap="round" />
@@ -243,8 +301,8 @@ function ThinkingFeatures({ look, angry, uid }: { look: { x: number; y: number }
       <g className="blink">
         <circle cx={91.7} cy={231.8} r={65} fill="#fff" stroke={T_INK} strokeWidth="5.5" />
         <circle cx={260.4} cy={243.2} r={65} fill="#fff" stroke={T_INK} strokeWidth="5.5" />
-        <circle cx={126.8 + look.x * 0.6} cy={243.2 + look.y * 0.6} r={31} fill={T_IRIS} stroke={T_INK} strokeWidth="5" className="pupil" />
-        <circle cx={225.3 + look.x * 0.6} cy={248 + look.y * 0.6} r={31} fill={T_IRIS} stroke={T_INK} strokeWidth="5" className="pupil" />
+        <circle cx={126.8} cy={243.2} r={31} fill={T_IRIS} stroke={T_INK} strokeWidth="5" className="pupil" style={gaze(0.6)} />
+        <circle cx={225.3} cy={248} r={31} fill={T_IRIS} stroke={T_INK} strokeWidth="5" className="pupil" style={gaze(0.6)} />
       </g>
       {/* brows: left curls down to the inside, right arches up */}
       <path d="M76 126 C 104 120, 132 128, 148 152" fill="none" stroke={T_INK} strokeWidth="7" strokeLinecap="round" />
@@ -255,7 +313,7 @@ function ThinkingFeatures({ look, angry, uid }: { look: { x: number; y: number }
   )
 }
 
-export function ThinkingFace({ look = { x: 0, y: 0 }, bubble = true }: { look?: { x: number; y: number }; bubble?: boolean }) {
+export function ThinkingFace({ bubble = true }: { bubble?: boolean }) {
   const { angry, poke, n } = useTantrum()
   const { t } = useLang()
   const uid = useId().replace(/:/g, '')
@@ -282,17 +340,17 @@ export function ThinkingFace({ look = { x: 0, y: 0 }, bubble = true }: { look?: 
           <circle className="tdot" cx="312" cy="65" r="9.5" fill="#fff" />
         </g>
       )}
-      <ThinkingFeatures look={look} angry={angry} uid={uid} />
+      <ThinkingFeatures angry={angry} uid={uid} />
     </svg>
   )
 }
 
 /** The round help button used in the work trial (Figma "Icon Button", node 401:1155) */
-export function FaceBadge({ look = { x: 0, y: 0 } }: { look?: { x: number; y: number } }) {
+export function FaceBadge() {
   const uid = useId().replace(/:/g, '')
   return (
     <svg width="76" height="60" viewBox="20 118 316 250" aria-hidden>
-      <ThinkingFeatures look={look} angry={false} uid={uid} />
+      <ThinkingFeatures angry={false} uid={uid} />
     </svg>
   )
 }
@@ -300,54 +358,23 @@ export function FaceBadge({ look = { x: 0, y: 0 } }: { look?: { x: number; y: nu
 /*
  * The roadmap face (Figma "Group 910100925", node 329:2893, 200 × 190): two
  * ringed eyes, a sound-wave arc above each and a small round mouth, traced in
- * the node's own coordinates. Pupils follow the pointer, the eyes blink, and a
- * click makes it cross like every other Chộp face.
+ * the node's own coordinates. Pupils follow the pointer and the eyes blink;
+ * it is not clickable (no angry state here).
  */
 const RF_INK = '#3C17BF'
 const RF_IRIS = '#6991F7'
-export function RoadmapFace({ width = 200, look = { x: 0, y: 0 } }: { width?: number; look?: { x: number; y: number } }) {
-  const { angry, poke, n } = useTantrum()
-  const { t } = useLang()
-  const uid = useId().replace(/:/g, '')
-  const px = look.x * 0.9
-  const py = look.y * 0.9
+export function RoadmapFace({ width = 200 }: { width?: number }) {
   return (
-    <svg
-      width={width}
-      height={(width * 190) / 202}
-      viewBox="0 0 202 190"
-      className={`roadmap-face is-pokable ${angry ? 'is-angry' : ''}`}
-      onClick={poke}
-      role="img"
-      aria-label={angry ? t('Chộp đang dỗi', 'Chộp is sulking') : 'Chộp'}
-      key={angry ? `a${n}` : 'calm'}
-      overflow="visible"
-    >
-      {angry ? (
-        <g className="mood-swap">
-          <AngryEye cx={58} cy={65} r={42} side={1} look={look} id={`${uid}l`} />
-          <AngryEye cx={138} cy={131} r={42} side={-1} look={look} id={`${uid}r`} />
-          <circle cx="58" cy="65" r="41.5" fill="none" stroke={RF_INK} strokeWidth="8.5" />
-          <circle cx="138" cy="131" r="41.5" fill="none" stroke={RF_INK} strokeWidth="8.5" />
-          {/* the arcs flatten into furious brows */}
-          <path d="M22 12 L94 34" stroke={RF_INK} strokeWidth="8.5" strokeLinecap="round" />
-          <path d="M194 80 L132 96" stroke={RF_INK} strokeWidth="8.5" strokeLinecap="round" />
-          <ellipse cx="63" cy="140" rx="12" ry="7" fill="none" stroke={RF_INK} strokeWidth="5" />
-          <Vein x={186} y={30} s={0.65} />
-        </g>
-      ) : (
-        <g className="mood-swap">
-          <path d="M76 8 Q 100 15 107 38" fill="none" stroke={RF_INK} strokeWidth="8.5" />
-          <path d="M161 75 Q 188 79 200 103" fill="none" stroke={RF_INK} strokeWidth="8.5" />
-          <circle cx="63" cy="137" r="13.5" fill="none" stroke={RF_INK} strokeWidth="8.5" />
-          <g className="blink">
-            <circle cx="58" cy="65" r="41.5" fill="#fff" stroke={RF_INK} strokeWidth="8.5" />
-            <circle cx="138" cy="131" r="41.5" fill="#fff" stroke={RF_INK} strokeWidth="8.5" />
-            <circle cx={59 + px} cy={64 + py} r="17.5" fill={RF_IRIS} stroke={RF_INK} strokeWidth="6" className="pupil" />
-            <circle cx={137 + px} cy={132 + py} r="17.5" fill={RF_IRIS} stroke={RF_INK} strokeWidth="6" className="pupil" />
-          </g>
-        </g>
-      )}
+    <svg width={width} height={(width * 190) / 202} viewBox="0 0 202 190" className="roadmap-face" role="img" aria-label="Chộp" overflow="visible">
+      <path d="M76 8 Q 100 15 107 38" fill="none" stroke={RF_INK} strokeWidth="8.5" />
+      <path d="M161 75 Q 188 79 200 103" fill="none" stroke={RF_INK} strokeWidth="8.5" />
+      <circle cx="63" cy="137" r="13.5" fill="none" stroke={RF_INK} strokeWidth="8.5" />
+      <g className="blink">
+        <circle cx="58" cy="65" r="41.5" fill="#fff" stroke={RF_INK} strokeWidth="8.5" />
+        <circle cx="138" cy="131" r="41.5" fill="#fff" stroke={RF_INK} strokeWidth="8.5" />
+        <circle cx={59} cy={64} r="17.5" fill={RF_IRIS} stroke={RF_INK} strokeWidth="6" className="pupil" style={gaze(0.9)} />
+        <circle cx={137} cy={132} r="17.5" fill={RF_IRIS} stroke={RF_INK} strokeWidth="6" className="pupil" style={gaze(0.9)} />
+      </g>
     </svg>
   )
 }

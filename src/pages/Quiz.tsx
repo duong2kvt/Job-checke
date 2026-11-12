@@ -14,7 +14,7 @@ export function QuizPage() {
   const [index, setIndex] = useState(first === -1 ? 0 : first)
   const [leaving, setLeaving] = useState(false)
   const card = useRef<HTMLDivElement>(null)
-  const look = useLook(card)
+  useLook(card)
   const { t } = useLang()
   const q = QUESTIONS[index]
   const picked = answers[index]
@@ -55,7 +55,7 @@ export function QuizPage() {
         </div>
         <div className="quiz-card" ref={card}>
           <div className="quiz-face">
-            <Mascot face={q.face} look={look} size={300} />
+            <Mascot face={q.face} size={300} />
           </div>
           <div key={`q${index}`} className="quiz-q">
             <span className="quiz-tag">{index + 1}/6</span>
@@ -103,7 +103,7 @@ export function QuizPage() {
 export function Analyzing() {
   const nav = useNavigate()
   const card = useRef<HTMLDivElement>(null)
-  const look = useLook(card, 10)
+  useLook(card, 10)
   const answers = useStore((s) => s.answers)
   const { t } = useLang()
   useEffect(() => {
@@ -123,7 +123,7 @@ export function Analyzing() {
         <Logo className="corner-logo" />
         <div className="quiz-card analyze-card" ref={card}>
           <div className="analyze-face">
-            <ThinkingFace look={look} />
+            <ThinkingFace />
           </div>
           <div className="quiz-q">
             <p>{t('Chúng tôi đang trong quá trình xử lý thông tin, bạn chờ xíu xíu hoi nha...', "We're crunching your answers, hang tight just a teeny bit...")}</p>

@@ -103,11 +103,11 @@ img { user-select: none; }
 @keyframes rise { from { opacity: 0; transform: translateY(24px); } }
 .blink { transform-box: fill-box; transform-origin: center; animation: blink 5s infinite; }
 @keyframes blink { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(0.08); } }
-.pupil { transition: cx 0.15s ease-out, cy 0.15s ease-out; }
+.pupil { will-change: transform; }
 
 /* ---------- login ---------- */
 .login-logo { position: absolute; left: 50%; top: 100px; transform: translateX(-50%); width: 363px; height: 140px; object-fit: contain; }
-.login-seg { position: absolute; left: 888px; top: 246px; }
+.login-seg { position: absolute; left: 1044px; top: 246px; }
 .login-card {
   position: absolute; left: 732px; top: 304px; width: 456px; padding: 48px;
   background: #fff; border: 4px solid var(--purple); border-radius: 20px; box-shadow: 6px 8px 0 var(--purple);
@@ -576,7 +576,6 @@ img { user-select: none; }
 
 /* ---------- poke the mascot ---------- */
 .is-pokable { cursor: pointer; overflow: visible; -webkit-tap-highlight-color: transparent; }
-.is-pokable:hover { filter: drop-shadow(0 6px 10px rgba(53, 2, 191, 0.12)); }
 .is-angry { animation: huff 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
 @keyframes huff {
   0% { transform: scale(1); }

@@ -149,7 +149,7 @@ export function Reward() {
   const nav = useNavigate()
   const [toast, showToast] = useToast()
   const ref = useRef<HTMLDivElement>(null)
-  const look = useLook(ref, 12)
+  useLook(ref, 12)
   const { t } = useLang()
   useEffect(() => {
     if (!getState().reward) setState({ reward: { code: CODE, claimedAt: Date.now() } })
@@ -182,7 +182,7 @@ export function Reward() {
         <div className="rw-head" ref={ref}>
           <span className="rw-say s1">{t('Quà nè', 'A gift!')}</span>
           <span className="rw-say s2">{t('Quà nà', 'For you~')}</span>
-          <Eyes size={230} look={look} />
+          <Eyes size={230} />
           <h1>{t('Chúc mừng bạn đã hoàn thành lộ trình học nhaaa!!!', 'Congrats on finishing your learning journeyyy!!!')}</h1>
         </div>
         <button className="voucher" onClick={copy} title={t('Bấm để sao chép mã', 'Click to copy the code')}>
