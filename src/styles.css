@@ -1,9 +1,18 @@
+/* iCiel Panton Black – the display face from the Figma file.
+   Put the licensed font files in public/fonts/ (see README). Until they are there,
+   a copy installed on the viewer's computer is used, then Montserrat Black. */
 @font-face {
   font-family: 'iCiel Panton';
-  src: url('../public/fonts/iCielPanton-Black.woff2') format('woff2');
+  font-weight: 800 900;
   font-style: normal;
-  font-weight: 900;
   font-display: swap;
+  src:
+    local('iCiel Panton Black'),
+    local('iCielPanton-Black'),
+    local('iCiel Panton'),
+    url('/fonts/iCielPanton-Black.woff2') format('woff2'),
+    url('/fonts/iCielPanton-Black.otf') format('opentype'),
+    url('/fonts/iCielPanton-Black.ttf') format('truetype');
 }
 
 /* Chộp Chếc – tokens from the Figma file (Purple 300, Yellow 300, Blue 300, Pink 300, Green 300) */
@@ -39,7 +48,7 @@ img { user-select: none; }
 .cv-frame { position: absolute; left: 50%; top: 50%; transform-origin: 50% 50%; overflow: hidden; }
 .page { position: absolute; inset: 0; animation: page-in 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 @keyframes page-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-.loops { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.loops { position: absolute; left: -97px; top: -56px; width: 2347px; height: 1156px; max-width: none; pointer-events: none; }
 .corner-logo { position: absolute; left: 64px; top: 64px; width: 140px; height: auto; cursor: pointer; z-index: 5; }
 
 /* ---------- shared controls ---------- */
@@ -118,19 +127,59 @@ img { user-select: none; }
 .login-note { margin: 0; text-align: center; font-size: 13px; color: var(--muted); }
 
 /* ---------- welcome ---------- */
-.welcome img { position: absolute; }
-.float { animation: bob 4.2s ease-in-out infinite; }
+/* Doors: arrive closed in the centre (0–0.45s), hold, burst outward past their
+   resting place (to ~1.35s), then settle with a small bounce. */
+.welcome { animation: none; }
+.door { position: absolute; z-index: 2; }
+.door-l { animation: door-l 1.9s cubic-bezier(0.3, 0, 0.2, 1) both; }
+.door-r { animation: door-r 1.9s cubic-bezier(0.3, 0, 0.2, 1) both; }
+@keyframes door-l {
+  0% { transform: translateX(499px) scale(1.18); opacity: 0; }
+  18% { transform: translateX(499px) scale(1.18); opacity: 1; }
+  44% { transform: translateX(499px) scale(1.18); }
+  50% { transform: translateX(470px) scale(1.2) rotate(-2deg); }
+  70% { transform: translateX(-110px) scale(1.3) rotate(-6deg); }
+  84% { transform: translateX(18px) scale(0.96) rotate(1.5deg); }
+  93% { transform: translateX(-6px) scale(1.01); }
+  100% { transform: none; opacity: 1; }
+}
+@keyframes door-r {
+  0% { transform: translateX(-486px) scale(1.18); opacity: 0; }
+  18% { transform: translateX(-486px) scale(1.18); opacity: 1; }
+  44% { transform: translateX(-486px) scale(1.18); }
+  50% { transform: translateX(-457px) scale(1.2) rotate(2deg); }
+  70% { transform: translateX(110px) scale(1.3) rotate(6deg); }
+  84% { transform: translateX(-18px) scale(0.96) rotate(-1.5deg); }
+  93% { transform: translateX(6px) scale(1.01); }
+  100% { transform: none; opacity: 1; }
+}
+/* Items: shot out of the opening gap, spinning, overshoot and land */
+.pop { position: absolute; z-index: 1; animation: burst 0.9s var(--d) cubic-bezier(0.34, 1.7, 0.55, 1) both; }
+.pop img { position: static; display: block; width: 100%; height: 100%; animation: bob 4.2s ease-in-out infinite; }
+@keyframes burst {
+  0% { transform: translate(var(--dx), var(--dy)) scale(0.1) rotate(var(--r)); opacity: 0; }
+  12% { opacity: 1; }
+  100% { transform: none; opacity: 1; }
+}
 @keyframes bob { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-12px) rotate(3deg); } }
-.door { transition: transform 0.9s cubic-bezier(0.6, 0, 0.3, 1), opacity 0.9s; }
-.door-l { transform-origin: 0% 50%; }
-.door-r { transform-origin: 100% 50%; }
-.is-opening .door-l { transform: perspective(900px) rotateY(70deg) translateX(-80px); opacity: 0; }
-.is-opening .door-r { transform: perspective(900px) rotateY(-70deg) translateX(80px); opacity: 0; }
-.is-opening .welcome-copy { transform: scale(1.08); opacity: 0; transition: all 0.8s ease-in; }
-.welcome-copy { position: absolute; left: 50%; top: 395px; transform: translateX(-50%); width: 980px; text-align: center; display: flex; flex-direction: column; align-items: center; }
-.welcome-kicker { margin: 0 0 14px; font: 900 40px/1.2 var(--display); color: #e2489b; }
-.welcome-copy h1 { margin: 0 0 40px; font: 900 70px/1.2 var(--display); color: var(--purple); letter-spacing: -0.01em; }
+.float { animation: bob 4.2s ease-in-out infinite; }
+/* Copy appears in the gap as the doors part */
+.welcome-copy { position: absolute; left: 50%; top: 360px; transform: translateX(-50%); width: 900px; z-index: 3; }
+.welcome-inner { display: flex; flex-direction: column; align-items: center; text-align: center; animation: copy-in 0.8s 0.98s cubic-bezier(0.34, 1.6, 0.55, 1) both; }
+@keyframes copy-in {
+  0% { transform: scale(0.3); opacity: 0; filter: blur(6px); }
+  60% { filter: none; }
+  100% { transform: none; opacity: 1; }
+}
+.welcome-kicker { margin: 0 0 16px; font: 900 40px/1.2 var(--display); color: #e2489b; }
+.welcome-copy h1 { margin: 0 0 40px; font: 900 68px/1.16 var(--display); color: var(--purple); letter-spacing: -0.01em; }
 .welcome-copy .btn { height: 64px; padding: 0 44px; font-size: 20px; }
+/* Leaving: everything dissolves into the quiz */
+.is-leaving .door, .is-leaving .pop, .is-leaving .welcome-copy, .is-leaving .loops { transition: opacity 0.45s ease, transform 0.5s ease; opacity: 0; }
+.is-leaving .door-l { animation: none; transform: translateX(-60px); }
+.is-leaving .door-r { animation: none; transform: translateX(60px); }
+.is-leaving .pop { animation: none; transform: scale(0.85); }
+.is-leaving .welcome-copy { transform: translateX(-50%) scale(1.05); }
 
 /* ---------- quiz ---------- */
 .quiz-card {
@@ -173,7 +222,7 @@ img { user-select: none; }
 .think-face { position: absolute; left: 92px; top: 182px; }
 
 /* ---------- result / branches ---------- */
-.res-girl { position: absolute; left: 60px; top: 320px; width: 798px; }
+.res-girl { position: absolute; left: 82px; top: 312px; width: 798px; }
 .res-sparkle { position: absolute; left: 746px; top: 143px; width: 113px; animation: twinkle 3s ease-in-out infinite; }
 .res-swirl { position: absolute; left: 1640px; top: 855px; width: 204px; animation: bob 5s ease-in-out infinite; }
 @keyframes twinkle { 50% { transform: scale(0.85) rotate(12deg); } }
@@ -455,8 +504,13 @@ img { user-select: none; }
 .hm-voucher .hm-big { font-size: 34px; }
 .hm-foot { margin-top: auto; display: flex; gap: 24px; align-items: center; color: var(--muted); font-size: 15px; }
 
+/* "Reduce motion" (often switched on through Windows' "Animation effects" setting):
+   stop the ambient loops that move on their own, but keep the short
+   reactions a person triggers (mascot tantrum, doors, presses, pop-ins). */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  .float, .pop img, .res-swirl, .res-sparkle, .rm-spark, .rw-say, .arrows .pulse,
+  .rm-node.is-current .rm-num, .tdot, .as-msg.typing i { animation: none !important; }
+  .page { animation-duration: 0.2s; }
 }
 
 .hm-levels h3 { margin: 0 0 16px; font-size: 17px; color: var(--muted); font-weight: 600; }
@@ -478,3 +532,21 @@ img { user-select: none; }
     padding: 12px 16px; border-radius: 12px; background: var(--purple); color: #fff; font: 600 14px/1.4 var(--body); text-align: center;
   }
 }
+
+/* ---------- poke the mascot ---------- */
+.is-pokable { cursor: pointer; overflow: visible; -webkit-tap-highlight-color: transparent; }
+.is-pokable:hover { filter: drop-shadow(0 6px 10px rgba(53, 2, 191, 0.12)); }
+.is-angry { animation: huff 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
+@keyframes huff {
+  0% { transform: scale(1); }
+  15% { transform: scale(0.92) rotate(-2deg); }
+  30% { transform: scale(1.06) translateX(-6px) rotate(2deg); }
+  45% { transform: scale(1.04) translateX(6px) rotate(-2deg); }
+  60% { transform: scale(1.03) translateX(-4px); }
+  75% { transform: scale(1.02) translateX(3px); }
+  100% { transform: none; }
+}
+.mood-swap { animation: mood 0.22s ease-out both; }
+@keyframes mood { from { opacity: 0.2; } to { opacity: 1; } }
+.vein { transform-box: fill-box; transform-origin: center; animation: vein 0.6s ease-in-out infinite alternate; }
+@keyframes vein { from { scale: 0.9; } to { scale: 1.12; } }
