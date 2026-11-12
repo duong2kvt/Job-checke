@@ -1,21 +1,33 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Canvas } from '../components/Canvas'
 import { BackLink, Button, Logo, img, useToast } from '../components/ui'
+import { RoadmapFace, useLook } from '../components/Mascot'
 import { LEVELS } from '../data/levels'
 import { BRANCHES } from '../data/majors'
 import { useStore } from '../lib/store'
 import { useLang } from '../lib/i18n'
 
-// Node centres on the 1920×1080 frame (from the Figma roadmap)
+// Checkpoint circles on the 1920×1080 frame (top-left of each 70×70 circle, Figma "Quiz" 247:34431)
 const NODES: [number, number][] = [
-  [416, 753],
-  [648, 770],
-  [862, 764],
-  [1084, 720],
-  [1236, 613],
-  [1344, 427],
+  [430, 704],
+  [675, 723],
+  [884, 723],
+  [1076, 696],
+  [1239, 595],
+  [1342, 411],
 ]
+const R = 35 // circle radius
+// Label offsets from Figma: [shift of the label centre, top below the circle]; 5 and 6 sit right of the dashed line
+const LABELS: [number, number][] = [
+  [0, 86],
+  [0, 90],
+  [4, 81],
+  [3, 82],
+  [24, 90],
+  [58, 92],
+]
+const CENTRES: [number, number][] = NODES.map(([x, y]) => [x + R, y + R])
 
 function pathThrough(pts: [number, number][]) {
   let d = `M${pts[0][0]} ${pts[0][1]}`
@@ -34,6 +46,8 @@ export function Roadmap() {
   const levels = useStore((s) => s.levels)
   const branch = useStore((s) => s.branch) ?? 'do-hoa'
   const [toast, showToast] = useToast()
+  const eyesRef = useRef<HTMLDivElement>(null)
+  const look = useLook(eyesRef, 10)
   const doneCount = LEVELS.filter((l) => levels[l.n]?.done).length
   const current = LEVELS.find((l) => !levels[l.n]?.done)?.n ?? 7
   const [menu, setMenu] = useState(false)
@@ -85,7 +99,7 @@ export function Roadmap() {
               </div>
             )}
           </div>
-          <h1>{lang === 'en' ? `${titleCase(branchName)} Work Trial` : `Trải Nghiệm Chuyên Ngành ${titleCase(branchName)}`}</h1>
+          <h1>{lang === 'en' ? `You're trying out ${titleCase(branchName)}` : `Bạn đang học thử ngành ${titleCase(branchName)}`}</h1>
           <Button className="rm-report" disabled={!doneCount} onClick={() => nav('/report')} title={doneCount ? '' : t('Hoàn thành ít nhất 1 cấp độ để xem phân tích', 'Finish at least 1 level to see your analysis')}>
             <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden>
               <rect x="3" y="4" width="18" height="13" rx="2" fill="none" stroke="currentColor" strokeWidth="2" />
@@ -99,35 +113,42 @@ export function Roadmap() {
         </div>
 
         <svg className="rm-path" viewBox="0 0 1920 1080" aria-hidden>
-          <path d={pathThrough(NODES)} fill="none" stroke="#3502BF" strokeOpacity=".2" strokeWidth="3" strokeDasharray="2 9" strokeLinecap="round" />
-          <path
-            d={pathThrough(NODES.slice(0, Math.min(current, 6)))}
-            fill="none"
-            stroke="#3502BF"
-            strokeWidth="3"
-            strokeDasharray="2 9"
-            strokeLinecap="round"
-          />
+          <path d={pathThrough(CENTRES)} fill="none" stroke="#2A2A2A" strokeWidth="1.5" strokeDasharray="4 4" />
         </svg>
 
         {LEVELS.map((l, i) => {
           const [x, y] = NODES[i]
           const state = levels[l.n]?.done ? 'done' : l.n === current ? 'current' : 'locked'
           return (
-            <button key={l.n} className={`rm-node is-${state}`} style={{ left: x, top: y }} onClick={() => open(l.n)} aria-label={t(`Cấp ${l.n}: ${l.name.vi}`, `Level ${l.n}: ${l.name.en}`)}>
-              {state === 'current' && (
-                <svg className="rm-spark" viewBox="0 0 40 60" aria-hidden>
-                  <path d="M24 2 L10 26 L22 26 L12 58 L32 22 L20 22 Z" fill="none" stroke="#F376BC" strokeWidth="3" strokeLinejoin="round" />
-                </svg>
-              )}
+            <button
+              key={l.n}
+              className={`rm-node is-${state}`}
+              style={{ left: x, top: y }}
+              onClick={() => open(l.n)}
+              aria-label={t(`Cấp ${l.n}: ${l.name.vi}`, `Level ${l.n}: ${l.name.en}`)}
+              aria-disabled={state === 'locked'}
+            >
+              <span className="rm-back" />
               <span className="rm-num">{l.n}</span>
-              <span className="rm-label">{t(l.name)}</span>
+              <span className="rm-label" style={{ left: R + LABELS[i][0], top: LABELS[i][1] }}>
+                {t(l.name)}
+              </span>
             </button>
           )
         })}
 
-        <img className="rm-book" src={img('book')} alt="" />
-        <img className="rm-eyes" src={`${import.meta.env.BASE_URL}img/mascot-wow.png`} width="150" alt={t('Chộp đang ngạc nhiên', 'Chộp is surprised')} draggable={false} />
+        {current <= LEVELS.length && (
+          <img
+            className="rm-bolt"
+            src={img('rm-bolt')}
+            alt=""
+            style={{ left: CENTRES[current - 1][0] + 26, top: CENTRES[current - 1][1] - 203 }}
+            draggable={false}
+          />
+        )}
+        <div className="rm-face" ref={eyesRef}>
+          <RoadmapFace width={202} look={look} />
+        </div>
         <BackLink to="/major/thiet-ke" />
         {toast}
       </div>

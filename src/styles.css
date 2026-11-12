@@ -279,37 +279,45 @@ img { user-select: none; }
 
 /* ---------- roadmap ---------- */
 .rm-card {
-  position: absolute; left: 180px; top: 195px; width: 1570px; height: 711px; background: #fff; border-radius: 24px;
-  border: 2px solid #e4e0f0; box-shadow: 14px 16px 0 var(--purple);
+  position: absolute; left: 215px; top: 195px; width: 1490px; height: 692px; background: #FCFCFE; border-radius: 22.3px;
+  border: 3.3px solid var(--purple); box-shadow: 11px 13px 0 var(--purple);
 }
-.rm-card h1 { margin: 0; position: absolute; left: 0; right: 0; top: 34px; text-align: center; font: 900 30px/1.2 var(--display); color: var(--purple); }
-.rm-select { position: absolute; left: 24px; top: 26px; z-index: 6; }
-.rm-drop { display: flex; align-items: center; gap: 16px; height: 46px; padding: 0 18px; border-radius: 10px; border: 2px solid var(--purple); background: #fff; color: var(--purple); font-weight: 600; font-size: 16px; box-shadow: 3px 4px 0 var(--purple); }
-.rm-menu { position: absolute; top: 56px; left: 0; width: 280px; background: #fff; border: 2px solid var(--purple); border-radius: 12px; padding: 6px; box-shadow: 0 16px 40px rgba(20, 10, 80, 0.15); }
+.rm-card h1 { margin: 0; position: absolute; left: 0; right: 0; top: 53px; text-align: center; font: 900 36px/44px var(--display); letter-spacing: -0.72px; color: var(--purple); }
+.rm-select { position: absolute; left: 37px; top: 37px; z-index: 6; }
+.rm-drop {
+  display: flex; align-items: center; justify-content: space-between; width: 235px; height: 56px; padding: 16px 24px; border-radius: 16px;
+  border: 1px solid var(--purple); background: #FCFCFE; color: var(--purple); font: 700 16px/24px var(--body); transition: background-color 0.15s;
+}
+.rm-drop:hover { background: var(--purple-10); }
+.rm-menu { position: absolute; top: 64px; left: 0; width: 280px; background: #fff; border: 2px solid var(--purple); border-radius: 12px; padding: 6px; box-shadow: 0 16px 40px rgba(20, 10, 80, 0.15); }
 .rm-menu button { width: 100%; text-align: left; border: 0; background: none; padding: 12px 14px; border-radius: 8px; font-size: 16px; display: flex; justify-content: space-between; }
 .rm-menu button:hover, .rm-menu button[data-on] { background: var(--purple-10); }
 .rm-menu em { font-style: normal; font-size: 13px; color: var(--muted); }
-.rm-report { position: absolute; right: 24px; top: 24px; }
-.rm-progress { position: absolute; left: 0; right: 0; top: 84px; margin: 0; text-align: center; color: var(--muted); font-size: 17px; }
+.rm-report { position: absolute; right: 40px; top: 40px; }
+.rm-progress { position: absolute; left: 0; right: 0; top: 108px; margin: 0; text-align: center; color: var(--muted); font-size: 17px; }
 .rm-progress b { color: var(--purple); }
 .rm-path { position: absolute; inset: 0; width: 1920px; height: 1080px; pointer-events: none; }
-.rm-node {
-  position: absolute; width: 52px; height: 52px; margin: -26px 0 0 -26px; border: 0; background: none; padding: 0; z-index: 3;
-}
+
+/* Checkpoints (Figma 401:2248 active, 2068:457 disabled): 70px circle on a 4px offset back circle */
+.rm-node { position: absolute; width: 75px; height: 75px; border: 0; background: none; padding: 0; z-index: 3; cursor: pointer; }
+.rm-back, .rm-num { position: absolute; width: 70.45px; height: 70.45px; border-radius: 50%; }
+.rm-back { left: 4px; top: 4px; background: #3905C8; }
 .rm-num {
-  position: absolute; left: 0; top: 0; width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center;
-  font: 900 22px var(--display); border: 3px solid var(--purple); background: #fff; color: var(--purple); transition: transform 0.2s, box-shadow 0.2s;
+  left: 0; top: 0; display: grid; place-items: center; background: #DDD3F9; border: 1.5px solid #3905C8;
+  font: 900 30px/38px var(--display); color: #2A0299; transition: transform 0.2s cubic-bezier(0.3, 1.4, 0.5, 1);
 }
-.rm-label { position: absolute; left: 50%; top: 60px; transform: translateX(-50%); white-space: nowrap; font-weight: 600; font-size: 17px; color: var(--purple); }
-.rm-node.is-done .rm-num { background: var(--purple); color: #fff; }
-.rm-node.is-current .rm-num { box-shadow: 0 0 0 0 rgba(53, 2, 191, 0.4); animation: ping 1.8s infinite; }
-@keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(53, 2, 191, 0.35); } 100% { box-shadow: 0 0 0 22px rgba(53, 2, 191, 0); } }
-.rm-node.is-locked .rm-num { border-color: #d7d2e6; color: #b5aec9; background: #f7f6fb; }
-.rm-node.is-locked .rm-label { color: #b5aec9; }
-.rm-node:not(.is-locked):hover .rm-num { transform: scale(1.12); }
-.rm-spark { position: absolute; left: 24px; top: -78px; width: 36px; height: 54px; animation: bob 2.4s ease-in-out infinite; }
-.rm-book { position: absolute; left: 1463px; top: 370px; width: 82px; }
-.rm-eyes { position: absolute; left: 1560px; top: 770px; }
+.rm-label { position: absolute; left: 35px; top: 86px; transform: translateX(-50%); white-space: nowrap; font: 700 20px/30px var(--body); color: var(--purple); }
+.rm-node:not(.is-locked):hover .rm-num { transform: translate(2px, 2px); }
+.rm-node:not(.is-locked):active .rm-num { transform: translate(4px, 4px); }
+.rm-node.is-current .rm-back { animation: ping 1.8s infinite; }
+@keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(53, 2, 191, 0.3); } 100% { box-shadow: 0 0 0 20px rgba(53, 2, 191, 0); } }
+.rm-node.is-locked { cursor: not-allowed; }
+.rm-node.is-locked .rm-back { background: #C2B3EE; }
+.rm-node.is-locked .rm-num { background: #fff; border-color: #C4B5EF; color: #B8A4EC; }
+.rm-node.is-locked .rm-label { color: #000; }
+.rm-bolt { position: absolute; width: 83px; height: 136px; pointer-events: none; z-index: 4; animation: bolt 2.4s ease-in-out infinite; transform-origin: 0% 100%; }
+@keyframes bolt { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(6px, -10px); } }
+.rm-face { position: absolute; left: 1473px; top: 665px; z-index: 3; }
 
 /* ---------- trial ---------- */
 .office { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; object-fit: fill; }
@@ -539,8 +547,8 @@ img { user-select: none; }
    stop the ambient loops that move on their own, but keep the short
    reactions a person triggers (mascot tantrum, doors, presses, pop-ins). */
 @media (prefers-reduced-motion: reduce) {
-  .float, .pop img, .res-swirl, .res-sparkle, .rm-spark, .rw-say, .arrows .pulse,
-  .rm-node.is-current .rm-num, .tdot, .as-msg.typing i { animation: none !important; }
+  .float, .pop img, .res-swirl, .res-sparkle, .rm-bolt, .rw-say, .arrows .pulse,
+  .rm-node.is-current .rm-back, .tdot, .as-msg.typing i { animation: none !important; }
   .page { animation-duration: 0.2s; }
 }
 

@@ -296,3 +296,58 @@ export function FaceBadge({ look = { x: 0, y: 0 } }: { look?: { x: number; y: nu
     </svg>
   )
 }
+
+/*
+ * The roadmap face (Figma "Group 910100925", node 329:2893, 200 × 190): two
+ * ringed eyes, a sound-wave arc above each and a small round mouth, traced in
+ * the node's own coordinates. Pupils follow the pointer, the eyes blink, and a
+ * click makes it cross like every other Chộp face.
+ */
+const RF_INK = '#3C17BF'
+const RF_IRIS = '#6991F7'
+export function RoadmapFace({ width = 200, look = { x: 0, y: 0 } }: { width?: number; look?: { x: number; y: number } }) {
+  const { angry, poke, n } = useTantrum()
+  const { t } = useLang()
+  const uid = useId().replace(/:/g, '')
+  const px = look.x * 0.9
+  const py = look.y * 0.9
+  return (
+    <svg
+      width={width}
+      height={(width * 190) / 202}
+      viewBox="0 0 202 190"
+      className={`roadmap-face is-pokable ${angry ? 'is-angry' : ''}`}
+      onClick={poke}
+      role="img"
+      aria-label={angry ? t('Chộp đang dỗi', 'Chộp is sulking') : 'Chộp'}
+      key={angry ? `a${n}` : 'calm'}
+      overflow="visible"
+    >
+      {angry ? (
+        <g className="mood-swap">
+          <AngryEye cx={58} cy={65} r={42} side={1} look={look} id={`${uid}l`} />
+          <AngryEye cx={138} cy={131} r={42} side={-1} look={look} id={`${uid}r`} />
+          <circle cx="58" cy="65" r="41.5" fill="none" stroke={RF_INK} strokeWidth="8.5" />
+          <circle cx="138" cy="131" r="41.5" fill="none" stroke={RF_INK} strokeWidth="8.5" />
+          {/* the arcs flatten into furious brows */}
+          <path d="M22 12 L94 34" stroke={RF_INK} strokeWidth="8.5" strokeLinecap="round" />
+          <path d="M194 80 L132 96" stroke={RF_INK} strokeWidth="8.5" strokeLinecap="round" />
+          <ellipse cx="63" cy="140" rx="12" ry="7" fill="none" stroke={RF_INK} strokeWidth="5" />
+          <Vein x={186} y={30} s={0.65} />
+        </g>
+      ) : (
+        <g className="mood-swap">
+          <path d="M76 8 Q 100 15 107 38" fill="none" stroke={RF_INK} strokeWidth="8.5" />
+          <path d="M161 75 Q 188 79 200 103" fill="none" stroke={RF_INK} strokeWidth="8.5" />
+          <circle cx="63" cy="137" r="13.5" fill="none" stroke={RF_INK} strokeWidth="8.5" />
+          <g className="blink">
+            <circle cx="58" cy="65" r="41.5" fill="#fff" stroke={RF_INK} strokeWidth="8.5" />
+            <circle cx="138" cy="131" r="41.5" fill="#fff" stroke={RF_INK} strokeWidth="8.5" />
+            <circle cx={59 + px} cy={64 + py} r="17.5" fill={RF_IRIS} stroke={RF_INK} strokeWidth="6" className="pupil" />
+            <circle cx={137 + px} cy={132 + py} r="17.5" fill={RF_IRIS} stroke={RF_INK} strokeWidth="6" className="pupil" />
+          </g>
+        </g>
+      )}
+    </svg>
+  )
+}
