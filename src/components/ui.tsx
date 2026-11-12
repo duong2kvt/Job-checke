@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ButtonHTMLAttributes, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { setLang, useLang, type Lang } from '../lib/i18n'
 
 export const img = (name: string) => `${import.meta.env.BASE_URL}img/${name}.webp`
 
@@ -12,8 +13,9 @@ export function Button({ variant = 'outline', size = 'md', className = '', ...re
   return <button {...rest} className={`btn btn-${variant} btn-${size} ${className}`} />
 }
 
-export function BackLink({ to, label = 'Trở về' }: { to?: string | number; label?: string }) {
+export function BackLink({ to, label }: { to?: string | number; label?: string }) {
   const nav = useNavigate()
+  const { t } = useLang()
   return (
     <button className="back" onClick={() => (typeof to === 'string' ? nav(to) : nav(typeof to === 'number' ? to : -1))}>
       <span className="back-ico" aria-hidden>
@@ -21,17 +23,37 @@ export function BackLink({ to, label = 'Trở về' }: { to?: string | number; l
           <path d="M12 5l-5 5 5 5" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </span>
-      {label}
+      {label ?? t('Trở về', 'Back')}
     </button>
   )
 }
 
-/**
- * The pastel ribbon behind the onboarding screens (the "Vector" layer in Figma,
- * placed at x -97, y -56, 2347×1156 on the 1920×1080 frame).
- */
-export function Loops(_: { variant?: number }) {
-  return <img className="loops" src={img('bg-vector')} alt="" aria-hidden draggable={false} />
+/** VIE / ENG segmented switch (Figma "Segmented", 144×50 with an offset purple shadow) */
+export function LangSwitch({ className = '' }: { className?: string }) {
+  const { lang } = useLang()
+  const opts: [Lang, string, string][] = [
+    ['vi', 'VIE', 'Tiếng Việt'],
+    ['en', 'ENG', 'English'],
+  ]
+  return (
+    <div className={`seg ${className}`} role="radiogroup" aria-label="Ngôn ngữ / Language">
+      <div className="seg-front">
+        {opts.map(([v, label, full]) => (
+          <button
+            key={v}
+            type="button"
+            role="radio"
+            aria-checked={lang === v}
+            aria-label={full}
+            className={`seg-opt ${lang === v ? 'is-on' : ''}`}
+            onClick={() => setLang(v)}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
 }
 
 /** Short-lived message at the bottom of the frame */
@@ -53,6 +75,7 @@ export function useToast() {
 }
 
 export function Modal({ open, onClose, children, className = '' }: { open: boolean; onClose: () => void; children: ReactNode; className?: string }) {
+  const { t } = useLang()
   useEffect(() => {
     if (!open) return
     const on = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
@@ -63,7 +86,7 @@ export function Modal({ open, onClose, children, className = '' }: { open: boole
   return (
     <div className="modal-scrim" onClick={onClose}>
       <div className={`modal ${className}`} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal>
-        <button className="modal-x" onClick={onClose} aria-label="Đóng">
+        <button className="modal-x" onClick={onClose} aria-label={t('Đóng', 'Close')}>
           <svg viewBox="0 0 24 24" width="24" height="24">
             <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
           </svg>

@@ -14,6 +14,7 @@ export type State = {
   branch: string | null
   levels: Record<number, LevelProgress>
   reward: { code: string; claimedAt: number } | null
+  lang: 'vi' | 'en'
 }
 
 const KEY = 'chopchec:v1'
@@ -26,6 +27,7 @@ export const initialState: State = {
   branch: null,
   levels: {},
   reward: null,
+  lang: 'vi',
 }
 
 function load(): State {
@@ -57,11 +59,11 @@ export function setState(patch: Partial<State> | ((s: State) => Partial<State>))
 }
 
 export function resetJourney() {
-  setState((s) => ({ ...initialState, user: s.user }))
+  setState((s) => ({ ...initialState, user: s.user, lang: s.lang }))
 }
 
 export function logout() {
-  setState({ ...initialState })
+  setState((s) => ({ ...initialState, lang: s.lang }))
 }
 
 export function useStore<T>(select: (s: State) => T): T {

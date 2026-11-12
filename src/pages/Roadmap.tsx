@@ -6,6 +6,7 @@ import { Eyes, useLook } from '../components/Mascot'
 import { LEVELS } from '../data/levels'
 import { BRANCHES } from '../data/majors'
 import { useStore } from '../lib/store'
+import { useLang } from '../lib/i18n'
 
 // Node centres on the 1920×1080 frame (from the Figma roadmap)
 const NODES: [number, number][] = [
@@ -39,17 +40,22 @@ export function Roadmap() {
   const doneCount = LEVELS.filter((l) => levels[l.n]?.done).length
   const current = LEVELS.find((l) => !levels[l.n]?.done)?.n ?? 7
   const [menu, setMenu] = useState(false)
+  const { t, lang } = useLang()
 
   useEffect(() => {
     const f = loc.state?.finished
-    if (f) showToast(f === LEVELS.length ? 'Bạn đã hoàn thành cả 6 cấp độ! Xem báo cáo phân tích nha.' : `Hoàn thành cấp ${f}! Cấp ${f + 1} đã mở khóa.`)
+    if (f) showToast(
+        f === LEVELS.length
+          ? t('Bạn đã hoàn thành cả 6 cấp độ! Xem báo cáo phân tích nha.', 'You finished all 6 levels! Check out your analysis report.')
+          : t(`Hoàn thành cấp ${f}! Cấp ${f + 1} đã mở khóa.`, `Level ${f} complete! Level ${f + 1} is unlocked.`),
+      )
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const open = (n: number) => {
     if (n <= current) nav(`/journey/${n}`)
-    else showToast(`Hoàn thành cấp ${n - 1} để mở khóa cấp này nha!`)
+    else showToast(t(`Hoàn thành cấp ${n - 1} để mở khóa cấp này nha!`, `Finish level ${n - 1} to unlock this one!`))
   }
-  const branchName = BRANCHES.find((b) => b.id === branch)?.name ?? 'Thiết kế đồ họa'
+  const branchName = t(BRANCHES.find((b) => b.id === branch)?.name ?? BRANCHES[0].name)
   const titleCase = (s: string) => s.replace(/(^|\s)\S/g, (c) => c.toUpperCase())
 
   return (
@@ -72,26 +78,26 @@ export function Roadmap() {
                     data-on={b.id === branch || undefined}
                     onClick={() => {
                       setMenu(false)
-                      if (!b.available) showToast(`${b.name} sắp ra mắt!`)
+                      if (!b.available) showToast(t(`${b.name.vi} sắp ra mắt!`, `${b.name.en} is coming soon!`))
                     }}
                   >
-                    {titleCase(b.name)}
-                    {!b.available && <em>Sắp ra mắt</em>}
+                    {titleCase(t(b.name))}
+                    {!b.available && <em>{t('Sắp ra mắt', 'Coming soon')}</em>}
                   </button>
                 ))}
               </div>
             )}
           </div>
-          <h1>Trải Nghiệm Chuyên Ngành {titleCase(branchName)}</h1>
-          <Button className="rm-report" disabled={!doneCount} onClick={() => nav('/report')} title={doneCount ? '' : 'Hoàn thành ít nhất 1 cấp độ để xem phân tích'}>
+          <h1>{lang === 'en' ? `${titleCase(branchName)} Work Trial` : `Trải Nghiệm Chuyên Ngành ${titleCase(branchName)}`}</h1>
+          <Button className="rm-report" disabled={!doneCount} onClick={() => nav('/report')} title={doneCount ? '' : t('Hoàn thành ít nhất 1 cấp độ để xem phân tích', 'Finish at least 1 level to see your analysis')}>
             <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden>
               <rect x="3" y="4" width="18" height="13" rx="2" fill="none" stroke="currentColor" strokeWidth="2" />
               <path d="M8 21h8M12 17v4M7 13l3-3 3 2 4-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            Phân Tích Kết Quả
+            {t('Phân Tích Kết Quả', 'Results Analysis')}
           </Button>
           <p className="rm-progress">
-            Hoàn thành <b>{doneCount}</b>/{LEVELS.length} cấp độ
+            {t('Hoàn thành', 'Completed')} <b>{doneCount}</b>/{LEVELS.length} {t('cấp độ', 'levels')}
           </p>
         </div>
 
@@ -111,14 +117,14 @@ export function Roadmap() {
           const [x, y] = NODES[i]
           const state = levels[l.n]?.done ? 'done' : l.n === current ? 'current' : 'locked'
           return (
-            <button key={l.n} className={`rm-node is-${state}`} style={{ left: x, top: y }} onClick={() => open(l.n)} aria-label={`Cấp ${l.n}: ${l.name}`}>
+            <button key={l.n} className={`rm-node is-${state}`} style={{ left: x, top: y }} onClick={() => open(l.n)} aria-label={t(`Cấp ${l.n}: ${l.name.vi}`, `Level ${l.n}: ${l.name.en}`)}>
               {state === 'current' && (
                 <svg className="rm-spark" viewBox="0 0 40 60" aria-hidden>
                   <path d="M24 2 L10 26 L22 26 L12 58 L32 22 L20 22 Z" fill="none" stroke="#F376BC" strokeWidth="3" strokeLinejoin="round" />
                 </svg>
               )}
               <span className="rm-num">{l.n}</span>
-              <span className="rm-label">{l.name}</span>
+              <span className="rm-label">{t(l.name)}</span>
             </button>
           )
         })}

@@ -1,5 +1,12 @@
 import type { Render } from '../data/levels'
 import { img } from './ui'
+import { useLang, type Tx } from '../lib/i18n'
+
+const TITLE: [Tx, Tx] = [
+  { vi: 'Sữa hạt ngon mê ly', en: 'Nut milk so yummy' },
+  { vi: 'Năng lượng mỗi ngày!', en: 'Energy every day!' },
+]
+const TAG: Tx = { vi: 'Dinh dưỡng từ thiên nhiên', en: 'Nourishment from nature' }
 
 const BROWN = '#724721'
 
@@ -8,7 +15,7 @@ export function MiniPoster({
   bg = '#FEFFF1',
   ink = BROWN,
   font = 'display',
-  tagline = 'Dinh dưỡng từ thiên nhiên',
+  tagline = TAG,
   product = true,
   w = 348,
   h = 483,
@@ -16,18 +23,19 @@ export function MiniPoster({
   bg?: string
   ink?: string
   font?: 'display' | 'serif'
-  tagline?: string
+  tagline?: Tx
   product?: boolean
   w?: number
   h?: number
 }) {
+  const { t } = useLang()
   return (
     <div className="mp" style={{ width: w, height: h, background: bg, ['--ink' as string]: ink }}>
       <div className={`mp-title mp-${font}`}>
-        <span>Sữa hạt ngon mê ly</span>
-        <span>Năng lượng mỗi ngày!</span>
+        <span>{t(TITLE[0])}</span>
+        <span>{t(TITLE[1])}</span>
       </div>
-      <span className="mp-chip">{tagline}</span>
+      <span className="mp-chip">{t(tagline)}</span>
       {product && <img className="mp-product" src={img('carton')} alt="" />}
       {product && (
         <>
@@ -69,6 +77,7 @@ function Grid({ aligned }: { aligned: boolean }) {
 }
 
 function Logo({ variant }: { variant: 'simple' | 'busy' }) {
+  const { t } = useLang()
   if (variant === 'simple')
     return (
       <div className="logo-card">
@@ -77,7 +86,7 @@ function Logo({ variant }: { variant: 'simple' | 'busy' }) {
           <path d="M100 44 C 128 60, 132 104, 100 128 C 68 104, 72 60, 100 44 Z" fill="#F1DDBA" />
           <path d="M100 58 L100 120" stroke="#724721" strokeWidth="5" strokeLinecap="round" />
           <text x="100" y="182" textAnchor="middle" fontFamily="Montserrat, sans-serif" fontWeight="900" fontSize="26" fill="#724721">
-            SỮA HẠT
+            {t('SỮA HẠT', 'NUT MILK')}
           </text>
         </svg>
       </div>
@@ -104,11 +113,11 @@ function Logo({ variant }: { variant: 'simple' | 'busy' }) {
           ORGANIC • NATURAL • SINCE 2025
         </text>
         <text x="100" y="126" textAnchor="middle" fontFamily="Inter, sans-serif" fontSize="7" fill="#fff">
-          100% hạt tuyển chọn – nguyên chất
+          {t('100% hạt tuyển chọn – nguyên chất', '100% hand-picked nuts – pure')}
         </text>
         <path d="M30 150 L170 150 L160 172 L40 172 Z" fill="#724721" />
         <text x="100" y="166" textAnchor="middle" fontFamily="Inter, sans-serif" fontSize="9" fill="#F8E42A">
-          ★ SỮA HẠT DINH DƯỠNG CAO CẤP ★
+          {t('★ SỮA HẠT DINH DƯỠNG CAO CẤP ★', '★ PREMIUM NUTRITIOUS NUT MILK ★')}
         </text>
       </svg>
     </div>
@@ -140,14 +149,15 @@ export function OptionVisual({ r, reference }: { r: Render; reference?: 'brown' 
 
 /** The picture for one option in the manager's review (the colour task shows the title on each background) */
 export function ReviewVisual({ r }: { r: Render }) {
+  const { t } = useLang()
   if (r.type === 'swatch')
     return (
       <div className="review-header" style={{ background: r.bg }}>
         <div className="mp-title mp-display" style={{ ['--ink' as string]: BROWN }}>
-          <span>Sữa hạt ngon mê ly</span>
-          <span>Năng lượng mỗi ngày!</span>
+          <span>{t(TITLE[0])}</span>
+          <span>{t(TITLE[1])}</span>
         </div>
-        <span className="mp-chip">Dinh dưỡng từ thiên nhiên</span>
+        <span className="mp-chip">{t(TAG)}</span>
       </div>
     )
   return (

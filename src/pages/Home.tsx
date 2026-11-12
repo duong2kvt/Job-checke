@@ -1,19 +1,22 @@
 import { useNavigate } from 'react-router-dom'
 import { Canvas } from '../components/Canvas'
-import { Button, Logo, img, useToast } from '../components/ui'
+import { Button, LangSwitch, Logo, img, useToast } from '../components/ui'
 import { Mascot } from '../components/Mascot'
 import { LEVELS } from '../data/levels'
 import { profileFrom } from '../data/quiz'
 import { buildReport } from '../lib/report'
 import { logout, resetJourney, useStore } from '../lib/store'
+import { useLang, type Lang } from '../lib/i18n'
 
-function greeting() {
+function greeting(lang: Lang) {
   const h = new Date().getHours()
+  if (lang === 'en') return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'
   return h < 11 ? 'Buổi sáng vui vẻ' : h < 14 ? 'Buổi trưa vui vẻ' : h < 18 ? 'Buổi chiều vui vẻ' : 'Buổi tối vui vẻ'
 }
 
-function today() {
+function today(lang: Lang) {
   const d = new Date()
+  if (lang === 'en') return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
   const days = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy']
   return `${days[d.getDay()]}, ngày ${d.getDate()} tháng ${d.getMonth() + 1} năm ${d.getFullYear()}`
 }
@@ -22,6 +25,7 @@ export function Home() {
   const nav = useNavigate()
   const s = useStore((x) => x)
   const [toast, showToast] = useToast()
+  const { t, lang } = useLang()
   const user = s.user!
   const p = s.quizDone ? profileFrom(s.answers) : null
   const r = buildReport(s)
@@ -29,11 +33,14 @@ export function Home() {
   const next = LEVELS.find((l) => !s.levels[l.n]?.done)
 
   const nav_ = [
-    { label: 'Tổng Quan', on: true, go: () => {} },
-    { label: 'Khám Phá Tính Cách', go: () => (s.quizDone ? nav('/result') : nav('/quiz')) },
-    { label: 'Game Mô Phỏng Nghề', go: () => (s.quizDone ? nav('/journey') : nav('/quiz')) },
-    { label: 'Cơ Sở Đào Tạo', go: () => showToast('Cơ sở đào tạo sẽ có trong bản cập nhật tới!') },
-    { label: 'Phần Thưởng Của Bạn', go: () => (s.reward ? nav('/reward') : showToast('Hoàn thành lộ trình để nhận phần thưởng nha!')) },
+    { label: t('Tổng Quan', 'Overview'), on: true, go: () => {} },
+    { label: t('Khám Phá Tính Cách', 'Discover Your Personality'), go: () => (s.quizDone ? nav('/result') : nav('/quiz')) },
+    { label: t('Game Mô Phỏng Nghề', 'Career Simulation Game'), go: () => (s.quizDone ? nav('/journey') : nav('/quiz')) },
+    { label: t('Cơ Sở Đào Tạo', 'Training Schools'), go: () => showToast(t('Cơ sở đào tạo sẽ có trong bản cập nhật tới!', 'Training schools are coming in the next update!')) },
+    {
+      label: t('Phần Thưởng Của Bạn', 'Your Rewards'),
+      go: () => (s.reward ? nav('/reward') : showToast(t('Hoàn thành lộ trình để nhận phần thưởng nha!', 'Finish the roadmap to unlock your reward!'))),
+    },
   ]
 
   return (
@@ -53,6 +60,7 @@ export function Home() {
               </button>
             ))}
           </nav>
+          <LangSwitch className="hm-seg" />
           <button
             className="hm-logout"
             onClick={() => {
@@ -60,52 +68,56 @@ export function Home() {
               nav('/login')
             }}
           >
-            Đăng xuất
+            {t('Đăng xuất', 'Log out')}
           </button>
         </aside>
 
         <main className="hm-main">
           <header>
             <h1>
-              {greeting()}, {user.name} ơi!
+              {greeting(lang)}, {user.name}{lang === 'en' ? '!' : ' ơi!'}
             </h1>
-            <p>{today()}</p>
+            <p>{today(lang)}</p>
           </header>
 
           <section className="hm-hero">
             <Mascot face="happy" size={180} />
             <div>
-              <h2>{!s.quizDone ? 'Bắt đầu hành trình của bạn' : next ? `Tiếp tục cấp ${next.n}: ${next.name}` : 'Bạn đã hoàn thành lộ trình Thiết kế đồ họa!'}</h2>
+              <h2>{!s.quizDone
+                  ? t('Bắt đầu hành trình của bạn', 'Start your journey')
+                  : next
+                    ? t(`Tiếp tục cấp ${next.n}: ${next.name.vi}`, `Continue level ${next.n}: ${next.name.en}`)
+                    : t('Bạn đã hoàn thành lộ trình Thiết kế đồ họa!', "You've completed the Graphic Design roadmap!")}</h2>
               <p>
                 {!s.quizDone
-                  ? 'Làm 6 câu trắc nghiệm để Chộp Chếc gợi ý chuyên ngành phù hợp với bạn.'
+                  ? t('Làm 6 câu trắc nghiệm để Chộp Chếc gợi ý chuyên ngành phù hợp với bạn.', 'Answer 6 quick questions and Chộp Chếc will suggest majors that suit you.')
                   : next
-                    ? 'Vào vai thực tập sinh và hoàn thành task tiếp theo với chị Quản lý.'
-                    : 'Xem báo cáo phân tích và nhận voucher khóa học đầu tiên.'}
+                    ? t('Vào vai thực tập sinh và hoàn thành task tiếp theo với chị Quản lý.', 'Step into the intern role and tackle the next task with your manager.')
+                    : t('Xem báo cáo phân tích và nhận voucher khóa học đầu tiên.', 'See your analysis report and grab a voucher for your first course.')}
               </p>
             </div>
             <Button variant="solid" size="lg" onClick={() => nav(!s.quizDone ? '/welcome' : next ? `/journey` : '/report')}>
-              {!s.quizDone ? 'Làm trắc nghiệm' : next ? 'Vào lộ trình' : 'Xem báo cáo'}
+              {!s.quizDone ? t('Làm trắc nghiệm', 'Take the quiz') : next ? t('Vào lộ trình', 'Open roadmap') : t('Xem báo cáo', 'View report')}
             </Button>
           </section>
 
           <div className="hm-grid">
             <article className="hm-card">
-              <h3>Tính cách</h3>
+              <h3>{t('Tính cách', 'Personality')}</h3>
               {p ? (
                 <>
                   <strong className="hm-big green">{p.type.code}</strong>
-                  <p>{p.type.name}</p>
+                  <p>{t(p.type.name)}</p>
                   <button className="link" onClick={() => nav('/result')}>
-                    Xem chuyên ngành phù hợp
+                    {t('Xem chuyên ngành phù hợp', 'See matching majors')}
                   </button>
                 </>
               ) : (
-                <p>Chưa làm trắc nghiệm.</p>
+                <p>{t('Chưa làm trắc nghiệm.', "You haven't taken the quiz yet.")}</p>
               )}
             </article>
             <article className="hm-card">
-              <h3>Lộ trình Thiết kế đồ họa</h3>
+              <h3>{t('Lộ trình Thiết kế đồ họa', 'Graphic Design roadmap')}</h3>
               <strong className="hm-big">
                 {r.done}
                 <small>/{r.total}</small>
@@ -114,41 +126,41 @@ export function Home() {
                 <i style={{ width: `${(r.done / r.total) * 100}%` }} />
               </div>
               <button className="link" onClick={() => nav(s.quizDone ? '/journey' : '/quiz')}>
-                Mở lộ trình
+                {t('Mở lộ trình', 'Open roadmap')}
               </button>
             </article>
             <article className="hm-card">
-              <h3>Kỹ năng nổi bật</h3>
+              <h3>{t('Kỹ năng nổi bật', 'Top skill')}</h3>
               {r.done ? (
                 <>
                   <strong className="hm-big pink">{top.value}%</strong>
-                  <p>{top.label}</p>
+                  <p>{t(top.label)}</p>
                   <button className="link" onClick={() => nav('/report')}>
-                    Xem báo cáo
+                    {t('Xem báo cáo', 'View report')}
                   </button>
                 </>
               ) : (
-                <p>Hoàn thành 1 cấp độ để xem phân tích kỹ năng.</p>
+                <p>{t('Hoàn thành 1 cấp độ để xem phân tích kỹ năng.', 'Finish 1 level to see your skill analysis.')}</p>
               )}
             </article>
             <article className="hm-card hm-voucher">
-              <h3>Phần thưởng</h3>
+              <h3>{t('Phần thưởng', 'Reward')}</h3>
               {s.reward ? (
                 <>
                   <strong className="hm-big">{s.reward.code}</strong>
-                  <p>Giảm 10% cho khóa học đầu tiên</p>
+                  <p>{t('Giảm 10% cho khóa học đầu tiên', '10% off your first course')}</p>
                 </>
               ) : (
                 <>
                   <img src={img('designer')} alt="" />
-                  <p>Hoàn thành lộ trình để mở voucher.</p>
+                  <p>{t('Hoàn thành lộ trình để mở voucher.', 'Finish the roadmap to unlock your voucher.')}</p>
                 </>
               )}
             </article>
           </div>
 
           <section className="hm-levels">
-            <h3>Game mô phỏng nghề · Thiết kế đồ họa</h3>
+            <h3>{t('Game mô phỏng nghề · Thiết kế đồ họa', 'Career simulation game · Graphic Design')}</h3>
             <div className="hm-level-row">
               {LEVELS.map((l) => {
                 const done = !!s.levels[l.n]?.done
@@ -156,8 +168,8 @@ export function Home() {
                 return (
                   <button key={l.n} className={`hm-level ${done ? 'is-done' : open ? 'is-open' : ''}`} disabled={!open} onClick={() => nav(`/journey/${l.n}`)}>
                     <span className="hm-level-n">{l.n}</span>
-                    <strong>{l.name}</strong>
-                    <em>{done ? 'Đã hoàn thành · chơi lại' : open ? 'Sẵn sàng' : 'Chưa mở khóa'}</em>
+                    <strong>{t(l.name)}</strong>
+                    <em>{done ? t('Đã hoàn thành · chơi lại', 'Completed · replay') : open ? t('Sẵn sàng', 'Ready') : t('Chưa mở khóa', 'Locked')}</em>
                   </button>
                 )
               })}
@@ -172,9 +184,9 @@ export function Home() {
                 nav('/welcome')
               }}
             >
-              Làm lại từ đầu
+              {t('Làm lại từ đầu', 'Start over')}
             </button>
-            <span>Bảng điều khiển đầy đủ (thống kê, so sánh tính cách, trung tâm đào tạo) đang được phát triển.</span>
+            <span>{t('Bảng điều khiển đầy đủ (thống kê, so sánh tính cách, trung tâm đào tạo) đang được phát triển.', 'The full dashboard (stats, personality comparison, training centres) is in the works.')}</span>
           </footer>
         </main>
         {toast}

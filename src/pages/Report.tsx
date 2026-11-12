@@ -6,6 +6,7 @@ import { Eyes, useLook } from '../components/Mascot'
 import { LEVELS } from '../data/levels'
 import { buildReport, improveText, strengthText } from '../lib/report'
 import { getState, setState, useStore } from '../lib/store'
+import { useLang } from '../lib/i18n'
 
 const RING_COLORS = ['#4FC0F1', '#09B86B', '#F376BC', '#3502BF']
 
@@ -48,8 +49,9 @@ export function ReportPage() {
   const s = useStore((x) => x)
   const r = buildReport(s)
   const [toast, showToast] = useToast()
+  const { t, lang } = useLang()
   const improve = r.subs.slice(0, 4)
-  while (improve.length < 4) improve.push({ label: 'Chưa có dữ liệu', value: 0, level: 0 })
+  while (improve.length < 4) improve.push({ label: { vi: 'Chưa có dữ liệu', en: 'No data yet' }, value: 0, level: 0 })
   const replay = r.weakLevels.length ? r.weakLevels : [1, 2, 3]
 
   return (
@@ -58,52 +60,55 @@ export function ReportPage() {
         <Logo className="corner-logo" onClick={() => nav('/home')} />
         <div className="rp-scroll">
           <header className="rp-head">
-            <h1>Thiết Kế Đồ Họa - Báo Cáo Phân Tích Kết Quả</h1>
+            <h1>{t('Thiết Kế Đồ Họa - Báo Cáo Phân Tích Kết Quả', 'Graphic Design - Results Analysis Report')}</h1>
             <Button onClick={() => nav('/reward')}>
               <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden>
                 <path d="M4 10h16v10H4zM2 6h20v4H2zM12 6v14M12 6c-2-4-6-3-6-1s4 1 6 1c2 0 6 1 6-1s-4-3-6 1" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
               </svg>
-              Nhận Phần Thưởng
+              {t('Nhận Phần Thưởng', 'Claim Your Reward')}
             </Button>
           </header>
           {r.done < r.total && (
             <p className="rp-partial">
-              Báo cáo dựa trên {r.done}/{r.total} cấp độ đã hoàn thành. Chơi tiếp để kết quả chính xác hơn nha!{' '}
+              {t(
+                `Báo cáo dựa trên ${r.done}/${r.total} cấp độ đã hoàn thành. Chơi tiếp để kết quả chính xác hơn nha!`,
+                `This report is based on ${r.done}/${r.total} completed levels. Keep playing for a more accurate result!`,
+              )}{' '}
               <button className="link" onClick={() => nav('/journey')}>
-                Tiếp tục lộ trình
+                {t('Tiếp tục lộ trình', 'Continue the roadmap')}
               </button>
             </p>
           )}
           <section className="rp-card">
-            <h2>Điểm Mạnh Nổi Bật</h2>
+            <h2>{t('Điểm Mạnh Nổi Bật', 'Your Top Strengths')}</h2>
             <div className="rings">
               {r.skills.map((k, i) => (
-                <Ring key={k.key} value={k.value} label={k.label} color={RING_COLORS[i]} delay={i * 120} />
+                <Ring key={k.key} value={k.value} label={t(k.label)} color={RING_COLORS[i]} delay={i * 120} />
               ))}
             </div>
             <div className="rp-note">
               <svg className="squiggle" viewBox="0 0 40 10" width="40" height="10" aria-hidden>
                 <path d="M1 5 q5 -6 10 0 t10 0 t10 0 t10 0" fill="none" stroke="#09B86B" strokeWidth="2" />
               </svg>
-              {strengthText(r).map((t) => (
-                <p key={t}>{t}</p>
+              {strengthText(r, lang).map((p) => (
+                <p key={p}>{p}</p>
               ))}
             </div>
 
-            <h2>Điểm Cần Cải Thiện</h2>
+            <h2>{t('Điểm Cần Cải Thiện', 'Areas to Improve')}</h2>
             <div className="rings">
               {improve.map((k, i) => (
-                <Ring key={k.label + i} value={k.value} label={k.label} color={RING_COLORS[i]} delay={i * 120} />
+                <Ring key={k.label.vi + i} value={k.value} label={t(k.label)} color={RING_COLORS[i]} delay={i * 120} />
               ))}
             </div>
             <div className="rp-note">
-              {improveText(r).map((t) => (
-                <p key={t}>{t}</p>
+              {improveText(r, lang).map((p) => (
+                <p key={p}>{p}</p>
               ))}
             </div>
 
-            <h2>Gợi Ý Cải Thiện</h2>
-            <h3 className="pink">Trải Nghiệm Lại Các Cấp Độ Game</h3>
+            <h2>{t('Gợi Ý Cải Thiện', 'How to Improve')}</h2>
+            <h3 className="pink">{t('Trải Nghiệm Lại Các Cấp Độ Game', 'Replay These Game Levels')}</h3>
             <div className="replay">
               {replay.map((n) => (
                 <button key={n} className="replay-card" onClick={() => nav(`/journey/${n}`)}>
@@ -111,11 +116,11 @@ export function ReportPage() {
                     <img src={img('designer')} alt="" />
                   </span>
                   <span className="replay-body">
-                    <span className="replay-chip">Nhóm Ngành Thiết Kế</span>
-                    <strong>{LEVELS[n - 1].name}</strong>
+                    <span className="replay-chip">{t('Nhóm Ngành Thiết Kế', 'Design Field')}</span>
+                    <strong>{t(LEVELS[n - 1].name)}</strong>
                     <span className="replay-meta">
-                      <span>Thiết Kế Đồ Họa</span>
-                      <span>Cấp Độ {n}</span>
+                      <span>{t('Thiết Kế Đồ Họa', 'Graphic Design')}</span>
+                      <span>{t('Cấp Độ', 'Level')} {n}</span>
                     </span>
                   </span>
                 </button>
@@ -123,11 +128,11 @@ export function ReportPage() {
             </div>
           </section>
           <div className="rp-foot">
-            <Button onClick={() => showToast('Danh sách cơ sở đào tạo sẽ có trong bản cập nhật tới!')}>
+            <Button onClick={() => showToast(t('Danh sách cơ sở đào tạo sẽ có trong bản cập nhật tới!', 'The list of training schools is coming in the next update!'))}>
               <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden>
                 <path d="M3 21h18M5 21V9l7-5 7 5v12M9 21v-6h6v6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
               </svg>
-              Cơ Sở Đào Tạo Ngành Thiết Kế
+              {t('Cơ Sở Đào Tạo Ngành Thiết Kế', 'Where to Study Design')}
             </Button>
           </div>
         </div>
@@ -145,15 +150,16 @@ export function Reward() {
   const [toast, showToast] = useToast()
   const ref = useRef<HTMLDivElement>(null)
   const look = useLook(ref, 12)
+  const { t } = useLang()
   useEffect(() => {
     if (!getState().reward) setState({ reward: { code: CODE, claimedAt: Date.now() } })
   }, [])
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(CODE)
-      showToast(`Đã sao chép mã ${CODE}`)
+      showToast(t(`Đã sao chép mã ${CODE}`, `Copied code ${CODE}`))
     } catch {
-      showToast(`Mã của bạn: ${CODE}`)
+      showToast(t(`Mã của bạn: ${CODE}`, `Your code: ${CODE}`))
     }
   }
   return (
@@ -174,23 +180,25 @@ export function Reward() {
         </svg>
         <Logo className="corner-logo" onClick={() => nav('/home')} />
         <div className="rw-head" ref={ref}>
-          <span className="rw-say s1">Quà nè</span>
-          <span className="rw-say s2">Quà nà</span>
+          <span className="rw-say s1">{t('Quà nè', 'A gift!')}</span>
+          <span className="rw-say s2">{t('Quà nà', 'For you~')}</span>
           <Eyes size={230} look={look} />
-          <h1>Chúc mừng bạn đã hoàn thành lộ trình học nhaaa!!!</h1>
+          <h1>{t('Chúc mừng bạn đã hoàn thành lộ trình học nhaaa!!!', 'Congrats on finishing your learning journeyyy!!!')}</h1>
         </div>
-        <button className="voucher" onClick={copy} title="Bấm để sao chép mã">
+        <button className="voucher" onClick={copy} title={t('Bấm để sao chép mã', 'Click to copy the code')}>
           <span className="voucher-tab">DISCOUNT</span>
           <span className="voucher-body">
-            <span>Giảm 10% cho khóa học đầu tiên</span>
+            <span>{t('Giảm 10% cho khóa học đầu tiên', '10% off your first course')}</span>
             <strong>{CODE}</strong>
-            <em>*Điều kiện áp dụng · bấm để sao chép</em>
+            <em>{t('*Điều kiện áp dụng · bấm để sao chép', '*Terms apply · click to copy')}</em>
           </span>
         </button>
         <div className="rw-actions">
-          <Button onClick={() => showToast('Danh sách trung tâm áp dụng mã sẽ có trong bản cập nhật tới!')}>Sử Dụng Ngay</Button>
+          <Button onClick={() => showToast(t('Danh sách trung tâm áp dụng mã sẽ có trong bản cập nhật tới!', 'The list of partner centres is coming in the next update!'))}>
+            {t('Sử Dụng Ngay', 'Use It Now')}
+          </Button>
           <button className="text-link" onClick={() => nav('/home')}>
-            Lưu và quay về
+            {t('Lưu và quay về', 'Save and go back')}
           </button>
         </div>
         {toast}

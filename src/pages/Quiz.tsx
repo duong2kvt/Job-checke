@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Canvas } from '../components/Canvas'
-import { BackLink, Check, Logo, Loops } from '../components/ui'
-import { Mascot, useLook } from '../components/Mascot'
+import { BackLink, Check, Logo } from '../components/ui'
+import { Mascot, ThinkingFace, useLook } from '../components/Mascot'
 import { QUESTIONS, SCALE } from '../data/quiz'
 import { setState, useStore } from '../lib/store'
+import { useLang } from '../lib/i18n'
 
 export function QuizPage() {
   const nav = useNavigate()
@@ -14,6 +15,7 @@ export function QuizPage() {
   const [leaving, setLeaving] = useState(false)
   const card = useRef<HTMLDivElement>(null)
   const look = useLook(card)
+  const { t } = useLang()
   const q = QUESTIONS[index]
   const picked = answers[index]
 
@@ -40,17 +42,16 @@ export function QuizPage() {
   })
 
   return (
-    <Canvas>
+    <Canvas bleed>
       <div className="page quiz">
-        <Loops variant={index} />
         <Logo className="corner-logo" onClick={() => nav('/home')} />
-        <div className="quiz-progress" aria-label={`Câu ${index + 1} trên 6`}>
+        <div className="quiz-progress" aria-label={t(`Câu ${index + 1} trên 6`, `Question ${index + 1} of 6`)}>
           {QUESTIONS.map((_, i) => (
             <i key={i} data-on={i <= index || undefined} />
           ))}
         </div>
         <div key={`s${index}`} className="sticker" style={{ background: q.color }}>
-          {q.sticker}
+          {t(q.sticker)}
         </div>
         <div className="quiz-card" ref={card}>
           <div className="quiz-face">
@@ -58,19 +59,19 @@ export function QuizPage() {
           </div>
           <div key={`q${index}`} className="quiz-q">
             <span className="quiz-tag">{index + 1}/6</span>
-            <p>{q.text}</p>
+            <p>{t(q.text)}</p>
           </div>
         </div>
-        <div className="scale" role="radiogroup" aria-label="Mức độ đồng ý">
-          <span className="scale-end">Phản đối</span>
+        <div className="scale" role="radiogroup" aria-label={t('Mức độ đồng ý', 'How much do you agree?')}>
+          <span className="scale-end">{t('Phản đối', 'Disagree')}</span>
           <div className="scale-dots">
             {SCALE.map((s, i) => (
               <button
                 key={i}
                 role="radio"
                 aria-checked={picked === i}
-                aria-label={s.label}
-                title={s.label}
+                aria-label={t(s.label)}
+                title={t(s.label)}
                 className="dot"
                 data-on={picked === i || undefined}
                 style={{ width: s.size, height: s.size, ['--c' as string]: s.color }}
@@ -80,7 +81,7 @@ export function QuizPage() {
               </button>
             ))}
           </div>
-          <span className="scale-end">Đồng ý</span>
+          <span className="scale-end">{t('Đồng ý', 'Agree')}</span>
         </div>
         {index > 0 ? (
           <button className="back" onClick={() => setIndex(index - 1)}>
@@ -89,7 +90,7 @@ export function QuizPage() {
                 <path d="M12 5l-5 5 5 5" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </span>
-            Trở về
+            {t('Trở về', 'Back')}
           </button>
         ) : (
           <BackLink to="/welcome" />
@@ -101,37 +102,31 @@ export function QuizPage() {
 
 export function Analyzing() {
   const nav = useNavigate()
+  const card = useRef<HTMLDivElement>(null)
+  const look = useLook(card, 10)
   const answers = useStore((s) => s.answers)
+  const { t } = useLang()
   useEffect(() => {
     if (answers.some((a) => a === null)) {
       nav('/quiz', { replace: true })
       return
     }
-    const t = setTimeout(() => {
+    const id = setTimeout(() => {
       setState({ quizDone: true })
       nav('/result', { replace: true })
     }, 3000)
-    return () => clearTimeout(t)
+    return () => clearTimeout(id)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
   return (
-    <Canvas>
+    <Canvas bleed>
       <div className="page quiz">
-        <Loops variant={1} />
         <Logo className="corner-logo" />
-        <div className="quiz-card">
-          <svg className="think-bubble" viewBox="0 0 270 214" aria-hidden>
-            <ellipse cx="146" cy="76" rx="118" ry="66" fill="#fff" stroke="#3502BF" strokeWidth="6" />
-            <circle cx="62" cy="160" r="15" fill="#fff" stroke="#3502BF" strokeWidth="5" />
-            <circle cx="34" cy="196" r="8" fill="#fff" stroke="#3502BF" strokeWidth="5" />
-            <circle className="tdot" cx="110" cy="76" r="11" fill="#3502BF" />
-            <circle className="tdot" cx="146" cy="76" r="11" fill="#3502BF" />
-            <circle className="tdot" cx="182" cy="76" r="11" fill="#3502BF" />
-          </svg>
-          <div className="think-face">
-            <Mascot face="think" size={210} />
+        <div className="quiz-card analyze-card" ref={card}>
+          <div className="analyze-face">
+            <ThinkingFace look={look} />
           </div>
           <div className="quiz-q">
-            <p>Tụi mình đang trong quá trình xử lý thông tin, bạn ngồi đợi xíu xíu nữa hoi nha... ('-')/</p>
+            <p>{t('Chúng tôi đang trong quá trình xử lý thông tin, bạn chờ xíu xíu hoi nha...', "We're crunching your answers, hang tight just a teeny bit...")}</p>
           </div>
         </div>
       </div>
