@@ -1,49 +1,55 @@
-# Chộp Chếc · Prototype web
+# Chộp Chếc
 
-Prototype web cho **Chộp Chếc** – nền tảng hỗ trợ định hướng và trải nghiệm nghề nghiệp (Designathon 2025 · Team 15).
+Web app định hướng và trải nghiệm nghề nghiệp (Designathon 2025 · Team 15): làm trắc nghiệm, nhận gợi ý chuyên ngành, rồi vào vai thực tập sinh Thiết kế đồ họa và hoàn thành 6 cấp độ với chị Quản lý.
 
-- Thiết kế gốc: [Figma design](https://www.figma.com/design/HZe4KO7SOwk8R4crJ5GWdI/-Designathon-2025--Team-15--Copy-?node-id=13-8) · [Figma prototype](https://www.figma.com/proto/HZe4KO7SOwk8R4crJ5GWdI/Designathon-2025-Team-15-Copy?node-id=13-8&starting-point-node-id=401%3A414)
-- Bản live (sau khi bật GitHub Pages): `https://duong2kvt.github.io/Job-checke/`
+Thiết kế gốc: [Figma](https://www.figma.com/design/HZe4KO7SOwk8R4crJ5GWdI/-Designathon-2025--Team-15--Copy-?node-id=13-8)
 
-## Có gì bên trong
-
-| Trang | Nội dung |
-|---|---|
-| `/` | Landing + **demo hero tự chạy** (dựng bằng kit [Stageshow](https://github.com/benjitaylor/skills)): con trỏ đi qua 5 nhịp – đăng nhập → trả lời quiz → chọn ngành Thiết kế → làm task chọn màu → báo cáo + voucher. Có bản compact riêng cho điện thoại (khung crop tự lia theo hành động). |
-| `#prototype` | **Prototype bấm được** 36 màn: Onboarding, Trắc nghiệm, Trải nghiệm nghề, Kết quả, Dashboard. |
-| `#screen-<id>` | Mở thẳng một màn, vd. `#screen-dash-home`. |
-
-Trong prototype:
-
-- Bấm vào nút như app thật; bấm chỗ trống sẽ nháy các vùng bấm (giống Figma).
-- Cuộn chuột trên các trang dài (báo cáo, tổng quan, trung tâm…) để xem phần dưới.
-- Phím: `←` quay lại, `→` màn kế, `↑/↓` cuộn trang, `H` bật/tắt vùng bấm, `R` chạy lại từ đầu.
-- Nút tên màn ở giữa thanh trên mở lưới tất cả màn hình.
-
-Màn **Trắc nghiệm 6 câu** và **AI đang phân tích** được code lại hoàn toàn (mascot SVG, mắt nhìn theo con trỏ, chớp mắt, sticker đổi màu từng câu, thang 5 mức). Các màn còn lại dùng ảnh 1920×1032 trích từ video prototype, kèm vùng bấm.
-
-## Chạy local
+## Chạy
 
 ```bash
 npm install
-npm run dev        # http://localhost:5173/Job-checke/
-npm run build      # xuất ra dist/
+npm run dev      # http://localhost:5173/Job-checke/
+npm run build    # xuất ra dist/
 ```
 
-## Deploy
+Deploy: workflow `.github/workflows/deploy.yml` build và đưa lên GitHub Pages mỗi lần push vào `main` (lần đầu bật **Settings → Pages → Source: GitHub Actions**). Trang sẽ ở `https://<user>.github.io/Job-checke/`.
 
-Workflow `.github/workflows/deploy.yml` tự build và deploy lên GitHub Pages mỗi lần push vào `main`.
-Lần đầu: vào **Settings → Pages → Source: GitHub Actions**.
+## Luồng đã có
+
+| Màn | Đường dẫn | Có gì |
+|---|---|---|
+| Màn chào | `#/` | Logo, mascot nhìn theo con trỏ, tự chuyển sau 2,6 giây |
+| Đăng nhập | `#/login` | Kiểm tra email/mật khẩu, ghi nhớ đăng nhập (bản thử: email bất kỳ, mật khẩu ≥ 6 ký tự) |
+| Cánh cổng | `#/welcome` | Icon bay lơ lửng, cửa mở khi bấm "Được rồi đi thôi" |
+| Trắc nghiệm | `#/quiz` | 6 câu (RIASEC), thang 5 mức, sticker đổi theo câu, phím 1–5 |
+| Phân tích | `#/analyzing` | Mascot suy nghĩ, tự chuyển |
+| Kết quả | `#/result` | Nhãn tính cách, ngành theo thế mạnh / sở thích (ngành chưa có nội dung báo "sắp ra mắt") |
+| Chọn nhánh | `#/major/thiet-ke` | 5 nhánh, nhánh Thiết kế đồ họa chơi được |
+| Lộ trình | `#/journey` | 6 cấp độ mở khóa lần lượt, nút Phân tích kết quả |
+| Trải nghiệm nghề | `#/journey/1` … `/6` | Hội thoại, task A/B, nhận xét của chị Quản lý, sản phẩm cuối, trợ lý Chộp (bấm mascot góc trái), phím ← → A B |
+| Báo cáo | `#/report` | Vòng điểm mạnh / cần cải thiện tính từ câu trả lời, gợi ý chơi lại |
+| Phần thưởng | `#/reward` | Voucher CHOPCHEC10, bấm để sao chép |
+| Trang chủ | `#/home` | Tóm tắt tính cách, tiến độ, kỹ năng nổi bật, voucher, danh sách cấp độ |
+
+Dữ liệu (tài khoản, câu trả lời, tiến độ, voucher) lưu trong `localStorage` của trình duyệt, khóa `chopchec:v1`. "Đăng xuất" xoá toàn bộ.
 
 ## Cấu trúc
 
 ```
 src/
-  App.tsx            landing + routing (hash)
-  HeroDemo.tsx       demo Stageshow (Stage, Window, Act script)
-  Prototype.tsx      trình phát prototype: scale-to-fit, chuyển cảnh, vùng bấm, cuộn, phím tắt
-  screens.ts         đồ thị màn hình + toạ độ vùng bấm (hệ toạ độ frame Figma 1920×1080)
-  coded/Quiz.tsx     quiz + màn "thinking" code lại
-  kit/               kit Stageshow (MIT, benjitaylor/skills)
-public/screens/      ảnh màn hình (.webp)
+  App.tsx              routes (HashRouter) + chặn khi chưa đăng nhập / chưa làm quiz
+  components/          Canvas (khung 1920×1080 tự co giãn), Mascot, Assistant, Visuals (poster/lưới/logo vẽ bằng code), ui
+  pages/               Onboarding, Quiz, Result, Roadmap, Trial, Report, Home
+  data/                quiz.ts, majors.ts, levels.ts (nội dung 6 cấp độ)
+  lib/                 store.ts (state + localStorage), report.ts (tính điểm)
+public/img/            minh họa (cắt từ video prototype), logo.svg
 ```
+
+Thêm cấp độ hoặc sửa hội thoại: chỉnh `src/data/levels.ts`. Thêm ngành: `src/data/majors.ts`.
+
+## Ghi chú
+
+- Minh họa (văn phòng, nhân vật, cô gái, icon, poster) được cắt từ video prototype vì không tải được ảnh export từ Figma. Nên thay bằng file export gốc (PNG/SVG @2x) khi có, giữ nguyên tên trong `public/img/`.
+- Font tiêu đề trong Figma là iCiel Panton (thương mại); bản web dùng Montserrat Black. Nếu có giấy phép Panton, thêm `@font-face` và để `--display` trỏ vào.
+- Nhãn tính cách (INFJ-T…) là nhãn minh họa theo nhóm sở thích mạnh nhất, không phải bài test MBTI đầy đủ.
+- Chưa làm: dashboard đầy đủ (thống kê, so sánh tính cách), trang cơ sở đào tạo, các ngành ngoài Thiết kế.

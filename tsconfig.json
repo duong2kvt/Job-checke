@@ -11,5 +11,5 @@
     "types": ["vite/client"],
     "isolatedModules": true
   },
-  "include": ["src"]
+  "include": ["src/main.tsx", "src/App.tsx", "src/pages", "src/components", "src/data", "src/lib"]
 }
