@@ -116,42 +116,64 @@ export function Login() {
   )
 }
 
-const ICONS: [string, number, number, number][] = [
-  // name, left, top, float delay
-  ['w-camera', 648, 95, 0],
-  ['w-compass', 918, 144, 0.6],
-  ['w-mask', 1171, 94, 1.1],
-  ['w-stetho', 1376, 173, 0.3],
-  ['w-question', 506, 231, 0.9],
-  ['w-brain', 241, 856, 0.4],
-  ['w-key', 629, 787, 1.3],
-  ['w-gear', 1250, 778, 0.2],
-  ['w-puzzle', 1544, 844, 0.8],
-  ['w-laptop', 892, 866, 1.5],
+// name, left, top, width, height (design px), rotation the item flies in with
+const ICONS: [string, number, number, number, number, number][] = [
+  ['w-camera', 648, 95, 116, 95, -40],
+  ['w-compass', 918, 144, 120, 120, 30],
+  ['w-mask', 1171, 94, 165, 76, 50],
+  ['w-stetho', 1376, 173, 134, 160, -35],
+  ['w-question', 506, 231, 64, 102, 45],
+  ['w-brain', 241, 856, 153, 128, -50],
+  ['w-key', 629, 787, 83, 84, 120],
+  ['w-gear', 1250, 778, 86, 85, -120],
+  ['w-puzzle', 1544, 844, 136, 128, 60],
+  ['w-laptop', 892, 866, 164, 105, -25],
 ]
 
+/**
+ * The gate: two doors arrive closed in the middle, burst open with an overshoot,
+ * then every item pops out of the gap and bounces into place (timed after the
+ * team's Figma prototype). Leaving fades the scene into the quiz.
+ */
 export function Welcome() {
   const nav = useNavigate()
-  const [opening, setOpening] = useState(false)
+  const [leaving, setLeaving] = useState(false)
   const go = () => {
-    setOpening(true)
-    setTimeout(() => nav('/quiz'), 900)
+    setLeaving(true)
+    setTimeout(() => nav('/quiz'), 520)
   }
   return (
     <Canvas>
-      <div className={`page welcome ${opening ? 'is-opening' : ''}`}>
+      <div className={`page welcome ${leaving ? 'is-leaving' : ''}`}>
         <Loops variant={2} />
         <img className="door door-l" src={img('w-door-l')} alt="" style={{ left: 118, top: 281 }} />
         <img className="door door-r" src={img('w-door-r')} alt="" style={{ left: 1446, top: 286 }} />
-        {ICONS.map(([n, x, y, d]) => (
-          <img key={n} className="float" src={img(n)} alt="" style={{ left: x, top: y, animationDelay: `${d}s` }} />
+        {ICONS.map(([n, x, y, w, h, r], i) => (
+          <span
+            key={n}
+            className="pop"
+            style={{
+              left: x,
+              top: y,
+              width: w,
+              height: h,
+              ['--dx' as string]: `${960 - (x + w / 2)}px`,
+              ['--dy' as string]: `${560 - (y + h / 2)}px`,
+              ['--r' as string]: `${r}deg`,
+              ['--d' as string]: `${1.02 + (i % 5) * 0.05 + Math.floor(i / 5) * 0.03}s`,
+            }}
+          >
+            <img src={img(n)} alt="" style={{ animationDelay: `${2.2 + i * 0.23}s` }} />
+          </span>
         ))}
         <div className="welcome-copy">
-          <p className="welcome-kicker">Úm ba la, vừng ơi mở ra!</p>
-          <h1>Cánh cổng bước vào con đường định hướng nghề nghiệp diệu kì</h1>
-          <Button onClick={go} disabled={opening}>
-            Được rồi đi thôi
-          </Button>
+          <div className="welcome-inner">
+            <p className="welcome-kicker">Úm ba la, vừng ơi mở ra!</p>
+            <h1>Cánh cổng bước vào con đường định hướng nghề nghiệp diệu kì</h1>
+            <Button onClick={go} disabled={leaving}>
+              Được rồi đi thôi
+            </Button>
+          </div>
         </div>
       </div>
     </Canvas>

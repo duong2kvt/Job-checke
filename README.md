@@ -50,6 +50,6 @@ Thêm cấp độ hoặc sửa hội thoại: chỉnh `src/data/levels.ts`. Thê
 ## Ghi chú
 
 - Minh họa (văn phòng, nhân vật, cô gái, icon, poster) được cắt từ video prototype vì không tải được ảnh export từ Figma. Nên thay bằng file export gốc (PNG/SVG @2x) khi có, giữ nguyên tên trong `public/img/`.
-- Font tiêu đề trong Figma là iCiel Panton (thương mại); bản web dùng Montserrat Black. Nếu có giấy phép Panton, thêm `@font-face` và để `--display` trỏ vào.
+- Font tiêu đề: **iCiel Panton Black** (như Figma). Đặt file font vào `public/fonts/` với một trong các tên `iCielPanton-Black.woff2` (khuyên dùng), `iCielPanton-Black.otf` hoặc `iCielPanton-Black.ttf`. Khi chưa có file, trang dùng bản Panton cài trên máy người xem, nếu không có thì dùng Montserrat Black. iCiel Panton là font thương mại: cần giấy phép webfont trước khi đưa lên mạng.
 - Nhãn tính cách (INFJ-T…) là nhãn minh họa theo nhóm sở thích mạnh nhất, không phải bài test MBTI đầy đủ.
 - Chưa làm: dashboard đầy đủ (thống kê, so sánh tính cách), trang cơ sở đào tạo, các ngành ngoài Thiết kế.

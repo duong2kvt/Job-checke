@@ -26,33 +26,12 @@ export function BackLink({ to, label = 'Trở về' }: { to?: string | number; l
   )
 }
 
-/** Pastel loop strokes behind the onboarding screens */
-export function Loops({ variant = 0 }: { variant?: number }) {
-  const sets = [
-    ['#FFE9A8', '#F9C6E4', '#C9D8FF'],
-    ['#D8F3E4', '#CFE3FF', '#E6D9FF'],
-    ['#F9C6E4', '#E6D9FF', '#CFEFFF'],
-  ][variant % 3]
-  return (
-    <svg className="loops" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden>
-      <defs>
-        <linearGradient id={`lp${variant}`} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor={sets[0]} />
-          <stop offset=".5" stopColor={sets[1]} />
-          <stop offset="1" stopColor={sets[2]} />
-        </linearGradient>
-      </defs>
-      <path
-        d="M-60 1030 C 120 800, 40 120, 330 40 C 580 -30, 640 440, 430 640 C 250 810, 700 1100, 1260 900 C 1580 780, 1780 620, 1990 400"
-        fill="none"
-        stroke={`url(#lp${variant})`}
-        strokeWidth="24"
-        strokeLinecap="round"
-        opacity=".55"
-      />
-      <path d="M1990 660 C 1700 940, 1300 1080, 900 1050" fill="none" stroke={sets[1]} strokeWidth="18" strokeLinecap="round" opacity=".55" />
-    </svg>
-  )
+/**
+ * The pastel ribbon behind the onboarding screens (the "Vector" layer in Figma,
+ * placed at x -97, y -56, 2347×1156 on the 1920×1080 frame).
+ */
+export function Loops(_: { variant?: number }) {
+  return <img className="loops" src={img('bg-vector')} alt="" aria-hidden draggable={false} />
 }
 
 /** Short-lived message at the bottom of the frame */
