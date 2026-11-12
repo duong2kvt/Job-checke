@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Canvas } from '../components/Canvas'
 import { BackLink, Button, Logo, img, useToast } from '../components/ui'
-import { Eyes, useLook } from '../components/Mascot'
 import { LEVELS } from '../data/levels'
 import { BRANCHES } from '../data/majors'
 import { useStore } from '../lib/store'
@@ -35,8 +34,6 @@ export function Roadmap() {
   const levels = useStore((s) => s.levels)
   const branch = useStore((s) => s.branch) ?? 'do-hoa'
   const [toast, showToast] = useToast()
-  const eyesRef = useRef<HTMLDivElement>(null)
-  const look = useLook(eyesRef, 10)
   const doneCount = LEVELS.filter((l) => levels[l.n]?.done).length
   const current = LEVELS.find((l) => !levels[l.n]?.done)?.n ?? 7
   const [menu, setMenu] = useState(false)
@@ -130,9 +127,7 @@ export function Roadmap() {
         })}
 
         <img className="rm-book" src={img('book')} alt="" />
-        <div className="rm-eyes" ref={eyesRef}>
-          <Eyes size={150} look={look} />
-        </div>
+        <img className="rm-eyes" src={`${import.meta.env.BASE_URL}img/mascot-wow.png`} width="150" alt={t('Chộp đang ngạc nhiên', 'Chộp is surprised')} draggable={false} />
         <BackLink to="/major/thiet-ke" />
         {toast}
       </div>
